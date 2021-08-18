@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<!-- Meta Tags -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+	<!-- Page Title -->
+	<title>Notification Settings</title>
+
+	<!-- Bootstrap CSS CDN v5.0.1-->
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+
+	<!-- Animate on Scroll CSS -->
+	<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+	<!-- Our Project CSS -->
+	<link rel="stylesheet" href="project.css">
+
+	<!-- Sidebar Scrollbar CSS -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.min.css">
+
+	<!-- Font Awesome JS -->
+	<script src="https://use.fontawesome.com/releases/v5.15.3/js/all.js"></script>
+</head>
+<body>
+	<!--Main Layer -->
+	<div class="container">
+		<!-- Sidebar  navigation-->
+		<nav id="sidebar">
+			<div id="dismiss" onclick="CloseSidebar()">
+				<i class="fas fa-arrow-left"></i>
+			</div>
+			<!-- Sidebar header -->
+			<div class="sidebar-header">
+				<div class="d-flex justify-content-center">
+					<img src="HawkIDS_small.jpg" class="img-fluid" width="125" height="125">
+				</div>
+				<br>
+				<h3 class="d-flex justify-content-center">Hawk IDS</h3>
+			</div>
+			<hr class="solid m-0">
+
+			<!-- Sidebar options list -->
+			<ul class="list-unstyled components">
+				<li>
+					<a onclick='passSession("live-network-traffic.html")'><i class="far fa-clock"></i> Live Network Traffic</a>
+				</li>
+				<li>
+					<a onclick='passSession("historical-network-data.html")'><i class="fas fa-history"></i> Historical Network Data</a>
+				</li>
+				<li>
+					<a onclick='passSession("quarantine-control.html")'><i class="fas fa-shield-alt"></i> Quarantine Control</a>
+				</li>
+				<li class="active">
+					<a onclick='passSession("notification-settings.html")'><i class="fas fa-bell"></i> Notification Settings</a>
+				</li>
+				<!-- line on the side bar to seperate seperate logout -->
+				<hr class="solid">
+				<li>
+					<a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+				</li>
+			</ul>
+		</nav>
+
+		<!-- Page Content (excluding sidebar, all other page content should be under here) -->
+		<div id="content" class="container-fluid">
+			<!-- Navigation Row -->
+			<div class="row sticky-top">
+				<!-- Header Navigation-->
+				<nav class="navbar navbar-expand-lg navbar-light bg-light">
+					<!-- Sidebar collapse button-->
+					<button type="button" id="sidebarCollapse" class="btn btn-primary" onclick="OpenSidebar()"><i class="fas fa-bars"></i></button>
+					<div class="col py-1">
+						<h5 align="center">Notification Settings&emsp;&ensp;</h5>
+					</div>
+				</nav>
+			</div>
+			<br>
+
+			<!-- Page Information Row -->
+			<div class="alert alert-light alert-dismissible fade show rounded-3 shadow mx-1 mb-3" role="alert">
+				<strong><i class="far fa-question-circle"></i> Page Information</strong><hr>This page lets you control on what condition should you receive notifications for. It also shows your notifications that you have received based on the rules that is currently set.
+				<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+			</div>
+
+			<!-- Receive Notifications Row -->
+			<div class="card shadow row mx-1 mb-3" data-aos="fade-right">
+				<h6 class="card-header">
+					<i class="fas fa-paper-plane"></i> Receive Notifications
+				</h6>
+				<div class="card-body">
+					<div class="form-check form-switch">
+						<input class="form-check-input" type="checkbox" id="flexSwitchCheckChecked" checked>
+						<label class="form-check-label" for="flexSwitchCheckChecked"> On / Off</label>
+					</div>
+				</div>
+			</div>
+
+			<!-- Receive Notifications for Row -->
+			<div class="card shadow row mx-1 mb-3" data-aos="fade-right">
+				<h6 class="card-header  bg-gradient">
+					<i class="fas fa-tasks"></i> Notification Rules
+				</h6>
+				<div class="card-body">
+					<div class="row">
+						<div class="col-3">
+							<a tabindex="0" class="btn btn-primary btn-sm mb-3" role="button" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-placement="right" data-bs-content="You can change the parameters of certain notification rules here. You can change at which priority level on live network traffic should you get a notification for using the options below"><i class="fas fa-question"></i></a>
+						</div>
+					</div>
+					<p>Receive notifications for</p>
+					<hr>
+					<label for="priority" class="form-label"><i class="far fa-clock"></i> Live Network Traffic</label>
+					<br>
+					<span>when traffic received has priority >= </span>
+					<select class="form-select"  id="priority">
+						<option value=1>1</option>
+						<option value=2>2</option>
+						<option value=3>3</option>
+						<option value=4>4</option>
+						<option value=5>5</option>
+					</select>
+				</div>
+				<div class="card-footer text-muted">
+					<button type="button" class="btn btn-info col-12" onclick="editSetting()">Save</button> 
+				</div>
+			</div>
+
+			<!-- Notifications -->
+			<div class="card shadow row mx-1 mb-3" data-aos="fade-right">
+				<h6 class="card-header">
+					<i class="fas fa-bell"></i> Notifications
+				</h6>
+				<div class="card-body">
+					<div class="row">
+						<div class="col-3">
+							<a tabindex="0" class="btn btn-primary btn-sm mb-3" role="button" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-placement="right" data-bs-content="Notifcations will appear here depending on your set rules and the last timestamp they were received."><i class="fas fa-question"></i></a>
+						</div>
+					</div>
+					<div class="row mx-0" id="alert-notifs">
+						<div class="alert alert-secondary alert-dismissible fade show" role="alert">
+							You have received a traffic under priority 1 or 2.
+							<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+							<hr>
+							<i class="text-muted" id="low">01-01-2020 22:45</i>
+						</div>
+
+						<div class="alert alert-warning alert-dismissible fade show" role="alert">
+							You have received a traffic under priority 3 or 4.
+							<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+							<hr>
+							<i class="text-muted" id="medium">01-01-2020 22:45</i>
+						</div>
+						<div class="alert alert-danger alert-dismissible fade show" role="alert">
+							You have received a traffic under priority >= 5.
+							<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+							<hr>
+							<i class="text-muted" id="high">02-02-2021 13:30</i>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Toast Error Message -->
+			<!-- z-index: 1100, so that it will appear on top of the modal -->
+			<div class=" toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100">
+				<div id="liveToast" class="toast hide" role="alert">
+					<div class="toast-header bg-warning">
+						<i class="fas fa-exclamation-triangle"></i>
+						<strong class="me-auto"> Warning!</strong>
+						<small class="text-muted">just now</small>
+						<button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+					</div>
+					<div class="toast-body" id="toast-body-error-message"></div>
+				</div>
+			</div>
+		</div><!-- End of #content <div> -->
+	</div><!-- End of .container <div> -->
+
+	<!-- Overlay layer-->
+	<div class="overlay" onclick="CloseSidebar()"></div>
+
+	<!-- AJAX v3.5.1-->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+	<!-- Bootstrap JS including Popper JS -->
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
+
+	<!-- jQuery Custom Scroller CDN -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.concat.min.js"></script>
+
+	<!-- Script to control sidebar -->
+	<script type="text/javascript" src="Sidebar.js"></script>
+
+	<!-- Animate on Scroll JS -->
+	<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+	<!-- Initialize animte on scroll external JS -->
+	<script>AOS.init();</script>
+
+	<!-- Script for request functions -->
+	<script type="text/javascript" src="function.js"></script>
+
+	<!-- Bootstrap Popover Script -->
+	<script type="text/javascript" src="Popover.js"></script>
+	
+	<script>
+	function retrieveSetting()
+	{
+		$.ajax({
+				type:'POST',
+				url:'../cgi-bin/ids-system.exe',
+				data:JSON.stringify({"request":"retrieveNotificationSetting"}),
+				dataType:'text',
+				ContentType:"application/text; charset=utf-8",
+				success: function(returnData, status){
+					const obj = JSON.parse(returnData);
+					if(obj.status == "success")
+					{
+						document.getElementById("priority").value =  obj.priority;
+						document.getElementById("flexSwitchCheckChecked").checked =  obj.sendToApp;
+
+						var d1 = '<div class="alert alert-secondary alert-dismissible fade show" role="alert">The last notification for traffic under priority 1 or 2.<button type="button" class="btn-close" data-bs-dismiss="alert"></button><hr><i class="text-muted" id="low">01-01-2020 22:45</i></div>';
+						var d2 = '<div class="alert alert-warning alert-dismissible fade show" role="alert">The last notification for traffic under priority 3 or 4.<button type="button" class="btn-close" data-bs-dismiss="alert"></button><hr><i class="text-muted" id="medium">01-01-2020 22:45</i></div>';
+						var d3 = '<div class="alert alert-danger alert-dismissible fade show" role="alert">The last notification for traffic under priority >= 5.<button type="button" class="btn-close" data-bs-dismiss="alert"></button><hr><i class="text-muted" id="high">02-02-2021 13:30</i></div>';
+						if (document.getElementById("priority").value < 3)
+						{
+							document.getElementById("alert-notifs").innerHTML = d1 + d2 + d3;
+							document.getElementById("low").innerHTML =  obj.low;
+							document.getElementById("medium").innerHTML =  obj.medium;
+							document.getElementById("high").innerHTML =  obj.high;
+						}
+
+
+						else if (document.getElementById("priority").value >= 3 && document.getElementById("priority").value < 5)
+						{
+							document.getElementById("alert-notifs").innerHTML = d2 + d3;
+							document.getElementById("medium").innerHTML =  obj.medium;
+							document.getElementById("high").innerHTML =  obj.high;
+						}
+
+						else if (document.getElementById("priority").value == 5)
+						{
+							document.getElementById("alert-notifs").innerHTML = d3;
+							document.getElementById("high").innerHTML =  obj.high;
+						}
+					}
+				},
+				error: function (msg){
+					//alert(msg);
+				}
+			});
+	}
+	
+	function editSetting()
+	{
+		var json = {"request":"setNotificationSetting", 
+		"priority":parseInt(document.getElementById("priority").value),
+		"sendToApp":document.getElementById("flexSwitchCheckChecked").checked}
+
+		$.ajax({
+				type:'POST',
+				url:'../cgi-bin/ids-system.exe',
+				data: JSON.stringify(json),
+				dataType:'text',
+				ContentType:"application/text; charset=utf-8",
+				success: function(returnData, status){
+					alert(returnData);
+				},
+				error: function (msg){
+					//alert(msg);
+				}
+			});
+	}
+	
+	$(document).ready(function(){
+		retrieveSetting();
+	});
+	</script>
+</body>
+</html>

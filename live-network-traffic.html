@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<!-- Meta Tags -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+	<!-- Page Title -->
+	<title>Live Network Traffic</title>
+
+	<!-- Bootstrap CSS CDN v5.0.1-->
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+
+	<!-- Animate on Scroll CSS -->
+	<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+	<!-- Our Project CSS -->
+	<link rel="stylesheet" href="project.css">
+
+	<!-- Sidebar Scrollbar CSS -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.min.css">
+
+	<!-- Font Awesome JS -->
+	<script src="https://use.fontawesome.com/releases/v5.15.3/js/all.js"></script>
+</head>
+<body>
+	<!--Main Layer -->
+	<div class="container">
+		<!-- Sidebar  navigation-->
+		<nav id="sidebar">
+			<div id="dismiss" onclick="CloseSidebar()">
+				<i class="fas fa-arrow-left"></i>
+			</div>
+			<!-- Sidebar header -->
+			<div class="sidebar-header">
+				<div class="d-flex justify-content-center">
+					<img src="HawkIDS_small.jpg" class="img-fluid" width="125" height="125">
+				</div>
+				<br>
+				<h3 class="d-flex justify-content-center">Hawk IDS</h3>
+			</div>
+			<hr class="solid m-0">
+
+			<!-- Sidebar options list -->
+			<ul class="list-unstyled components">
+				<li class="active">
+					<a onclick='passSession("live-network-traffic.html")'><i class="far fa-clock"></i> Live Network Traffic</a>
+				</li>
+				<li>
+					<a onclick='passSession("historical-network-data.html")'><i class="fas fa-history"></i> Historical Network Data</a>
+				</li>
+				<li>
+					<a onclick='passSession("quarantine-control.html")'><i class="fas fa-shield-alt"></i> Quarantine Control</a>
+				</li>
+				<li>
+					<a onclick='passSession("notification-settings.html")'><i class="fas fa-bell"></i> Notification Settings</a>
+				</li>
+				<!-- line on the side bar to seperate logout -->
+				<hr class="solid">
+				<li>
+					<a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+				</li>
+			</ul>
+		</nav>
+
+		<!-- Page Content (excluding sidebar, all other page content should be under here) -->
+		<div id="content" class="container-fluid">
+			<!-- Navigation Row -->
+			<div class="row sticky-top">
+				<!-- Header Navigation-->
+				<nav class="navbar navbar-expand-lg navbar-light bg-light">
+					<!-- Sidebar collapse button-->
+					<button type="button" id="sidebarCollapse" class="btn btn-primary" onclick="OpenSidebar()"><i class="fas fa-bars"></i></button>
+					<div class="col py-1">
+						<h5 align="center">Live Network Traffic&emsp;&ensp;</h5>
+					</div>
+				</nav>
+			</div>
+			<br>
+
+			<!-- Page Information Row -->
+			<div class="alert alert-light alert-dismissible fade show rounded-3 shadow mx-1 mb-3" role="alert">
+				<strong><i class="far fa-question-circle"></i> Page Information</strong><hr>This page contains information about the recent and currently incoming traffic into the network. You can view, filter, and examine traffics to focus on possible potential intrusion sources.
+				<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+			</div>
+
+			<!-- Overall Status Row -->
+			<div class="card shadow row rounded-3 mx-1 mb-3" data-aos="fade-right">
+				<h6 class="card-header">
+					<i class="fas fa-user-shield"></i> Overall Status
+				</h6>
+				<!-- HTML display will change depending on the status -->
+				<div class="card-body" id="Overall-Status">
+
+					<!-- Safe badge to show when overall status is safe -->
+					<span class="badge bg-success fs-6"><i class="fas fa-check"></i> Safe</span>
+					<br>
+					<p>you have not receive network traffic that requires attention in the last 5 minutes</p>
+					<hr>
+
+					<!-- Warning badge to show when overall status is in medium priority -->
+					<span class="badge bg-warning fs-6"><i class="fas fa-exclamation-triangle"></i> Warning!</span>
+					<br>
+					<p>you have received network traffic under medium priority in the last 5 minutes</p>
+					<hr>
+
+					<!-- Danger badge to show when overall status is in high priority -->
+					<span class="badge bg-danger fs-6"><i class="fas fa-skull-crossbones"></i> Danger!</span>
+					<br>
+					<p>you have received network traffic under high priority in the last 5 minutes</p>
+				</div>
+			</div>
+
+			<!-- Traffic Received last 5 Minutes Row -->
+			<div class="card shadow row rounded-3 mx-1 mb-3" data-aos="fade-right">
+				<h6 class="card-header">
+					<i class="fas fa-exchange-alt"></i> Traffic Received last 5 Minutes
+				</h6>
+				<div class="card-body">
+					<div class="row">
+						<div class="col-3">
+							<a tabindex="0" class="btn btn-primary btn-sm" role="button" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-placement="right" data-bs-content="The graph shows data about network traffic the system has received in the last 5 minutes. It shows the amount of traffic categorized by 'total', 'medium priority', and 'high priority' in each minute mark. You can select and deselect traffic categories from the graph by clicking on their label."><i class="fas fa-question"></i></a>
+						</div>
+					</div>
+					<div class="row" id="canvas1">
+						<div class="loader" style="height: 20vh;"></div>
+						<div class="d-flex justify-content-center" style="height: 15vh;">Loading...</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Incoming Traffic Top 5 Countries Row -->
+			<div class="card shadow row rounded-3 mx-1 mb-3" data-aos="fade-right">
+				<h6 class="card-header">
+					<i class="fas fa-globe-africa"></i> Traffic Received last 5 Minutes by Countries
+				</h6>
+				<div class="card-body">
+					<div class="row">
+						<div class="col-3">
+							<a tabindex="0" class="btn btn-primary btn-sm" role="button" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-placement="right" data-bs-content="The graph shows 5 countries where latest traffic has been recieved in the last 5 minutes. It shows the total amount of traffic received in those countries respectively. You can select and deselect countries from the graph by clicking on their label. "><i class="fas fa-question"></i></a>
+						</div>
+					</div>
+					<div class="row" id="canvas2">
+						<div class="loader" style="height: 20vh;"></div>
+						<div class="d-flex justify-content-center" style="height: 15vh;">Loading...</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Live Incoming Traffic Row -->
+			<div class="card shadow row rounded-3 mx-1 mb-3" data-aos="fade-right">
+				<h6 class="card-header">
+					<i class="far fa-clock"></i> Live Incoming Traffic
+				</h6>
+				<div class="card-body">
+					<a tabindex="0" class="btn btn-primary btn-sm mb-3" role="button" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-placement="right" data-bs-content="The table below shows the live network traffic that is entering the system in real time. You can filter which network data to focus on by using the 'show / hide' options below."><i class="fas fa-question"></i></a>
+					<br>
+					<p>Choose which data type to show/hide</p>
+					<table class="table table-hover" id="data-types">
+						<tr>
+							<td>
+								<div class="form-check form-switch">
+									<label class="form-check-label" for="Date-time">Date-time</label>
+									<input class="form-check-input" type="checkbox" id="Date-timeCheckbox" value="Date-time" checked>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<div class="form-check form-switch">
+									<label class="form-check-label" for="sid">sid</label>
+									<input class="form-check-input" type="checkbox" id="sidCheckBox" value="sid" checked>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<div class="form-check form-switch">
+									<label class="form-check-label" for="cid">cid</label>
+									<input class="form-check-input" type="checkbox" id="cidCheckBox" value="cid" checked>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<div class="form-check form-switch">
+									<label class="form-check-label" for="Signature">Signature</label>
+									<input class="form-check-input" type="checkbox" id="SignatureCheckBox" value="Signature" checked>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<div class="form-check form-switch">
+									<label class="form-check-label" for="Priority">Priority</label>
+									<input class="form-check-input" type="checkbox" id="PriorityCheckBox" value="Priority" checked>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<div class="form-check form-switch">
+									<label class="form-check-label" for="Protocol">Protocol</label>
+									<input class="form-check-input" type="checkbox" id="ProtocolCheckBox" value="Protocol" checked>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<div class="form-check form-switch">
+									<label class="form-check-label" for="Source-IP">Source-IP</label>
+									<input class="form-check-input" type="checkbox" id="Source-IPCheckBox" value="Source-IP" checked>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<div class="form-check form-switch">
+									<label class="form-check-label" for="Source-Port">Source-Port</label>
+									<input class="form-check-input" type="checkbox" id="Source-PortCheckBox" value="Source-Port" checked>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<div class="form-check form-switch">
+									<label class="form-check-label" for="Destination-IP">Destination-IP</label>
+									<input class="form-check-input" type="checkbox" id="Destination-IPCheckBox" value="Destination-IP" checked>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<div class="form-check form-switch">
+									<label class="form-check-label" for="Destination-Port">Destination-Port</label>
+									<input class="form-check-input" type="checkbox" id="Destination-PortCheckBox" value="Destination-Port" checked>
+								</div>
+							</td>
+						</tr>
+					</table>
+					<hr>
+
+					<!-- Table to display live network traffic data -->
+					<div class="table-responsive" style="overflow-x:auto;" id="live-traffic"></div>
+				</div>
+			</div>
+
+			<!-- Toast Error Message -->
+			<!-- z-index: 1100, so that it will appear on top of the modal -->
+			<div class=" toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100">
+				<div id="liveToast" class="toast hide" role="alert">
+					<div class="toast-header bg-warning">
+						<i class="fas fa-exclamation-triangle"></i>
+						<strong class="me-auto"> Warning!</strong>
+						<small class="text-muted">just now</small>
+						<button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+					</div>
+					<div class="toast-body" id="toast-body-error-message"></div>
+				</div>
+			</div>
+		</div><!-- End of #content <div> -->
+	</div><!-- End of .container <div> -->
+
+
+
+	<!-- Overlay layer-->
+	<div class="overlay" onclick="CloseSidebar()"></div>
+
+	<!-- AJAX v3.5.1-->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+	<!-- Bootstrap JS including Popper JS -->
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
+
+	<!-- jQuery Custom Scroller CDN -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.concat.min.js"></script>
+
+	<!-- Script to control sidebar -->
+	<script type="text/javascript" src="Sidebar.js"></script>
+
+	<!-- Animate on Scroll JS -->
+	<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+	<!-- Initialize animte on scroll external JS -->
+	<script>AOS.init();</script>
+		
+	<!-- Script for request functions -->
+	<script type="text/javascript" src="function.js"></script>
+
+	<!--Chart JS Script-->
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+	<!-- Bootstrap Popover Script -->
+	<script type="text/javascript" src="Popover.js"></script>
+
+	<!-- Script to create graph using Chart.JS -->
+	<script>
+	function chart(){
+		$.ajax({
+				type: 'POST',
+				url: '../cgi-bin/ids-system.exe',
+				data: JSON.stringify({"request":"overall status live"}),
+				dataType: "text",
+				ContentType: "application/text; charset=utf-8",
+				success: function (returnedData, status) {
+					if (status == "success") {
+						if(returnedData < 3)
+						{
+							document.getElementById("Overall-Status").innerHTML = '\<span class="badge bg-success fs-6"><i class="fas fa-check"></i> Safe</span>\
+																					<br>\
+																					<p>you have not receive network traffic that requires attention in the last 5 minutes</p>\
+																					<hr>';
+						}
+						else if(returnedData >= 3 && returnedData < 5)
+						{
+							document.getElementById("Overall-Status").innerHTML = '<span class="badge bg-warning fs-6"><i class="fas fa-exclamation-triangle"></i> Warning!</span>\
+																					<br>\
+																					<p>you have received network traffic under medium priority in the last 5 minutes</p>\
+																					<hr>';
+						}
+						else if(returnedData = 5)
+						{
+							document.getElementById("Overall-Status").innerHTML = '<span class="badge bg-danger fs-6"><i class="fas fa-skull-crossbones"></i> Danger!</span>\
+																					<br>\
+																					<p>you have received network traffic under high priority in the last 5 minutes</p>';
+						}
+						
+					}
+				},
+				error: function (msg) {
+					$('.toast').toast('show');
+					document.getElementById("toast-body-error-message").innerHTML = "Didn't received any traffic in the past 5 minutes";
+					document.getElementById("Overall-Status").innerHTML = '\<span class="badge bg-success fs-6"><i class="fas fa-check"></i> Safe</span>\
+																		<br>\
+																		<p>you have not receive network traffic that requires attention in the last 5 minutes</p>\
+																		<hr>';
+					}
+				});
+		
+					
+		$.ajax({
+			type: 'POST',
+			url: '../cgi-bin/ids-system.exe',
+			data: JSON.stringify({"request":"Live Traffic Chart"}),
+			dataType: "text",
+			ContentType: "application/text; charset=utf-8",
+			success: function (returnedData, status) {
+				if (status == "success") {
+					document.getElementById("canvas1").innerHTML = '<canvas id="five-minutes-bar-chart" style="width:100%; height: 35vh;"></canvas>';
+					var obj = JSON.parse(returnedData);
+
+					//traffic received last 5 minutes bar chart variables and controls
+					var fmbc = document.getElementById('five-minutes-bar-chart');
+
+					//array for the "Total Traffic" data (color blue)
+					//1st element is for '1 Minute ago', 2nd element is for '2 Minutes ago' and so on
+					var TotalTrafficData = obj.total;
+
+					//array for the "Medium Priority" data (color yellow)
+					//1st element is for '1 Minute ago', 2nd element is for '2 Minutes ago' and so on
+					var MediumTrafficData = obj.medium_priority;
+
+					//array for the "High Priority" data (color red)
+					//1st element is for '1 Minute ago', 2nd element is for '2 Minutes ago' and so on
+					var HighTrafficData = obj.high_priority;
+
+					//variable to make and configure the last 5 minutes bar chart
+					var Configfmbc = new Chart(fmbc, 
+					{
+						type: 'bar',
+						data: 
+						{
+							//X-axis labels (hardcoded to only show the last 5 minutes)
+							labels: ['1 Min ago', '2 Mins ago', '3 Mins ago', '4 Mins ago', '5 Mins ago'],
+							datasets: [
+							{
+								//"Total" category (color blue)
+								label: 'Total',
+
+								//data under "Total" category 
+								data: TotalTrafficData,//getting the data from the array TotalTrafficData
+
+								//other designing methods
+								backgroundColor: [
+									'rgba(54, 162, 235, 0.2)'
+								],
+								borderColor: [
+									'rgba(54, 162, 235, 1)'
+								],
+								borderWidth: 1.5,
+								borderRadius: 10
+							},
+
+							{
+								//"Medium Priority" category (color yellow)
+								label: 'Medium Priority',
+
+								//data under "Medium Priority" category
+								data: MediumTrafficData,//getting the data from the array MediumTrafficData
+
+								//other designing methods
+								backgroundColor: [
+									'rgba(255, 206, 86, 0.2)'
+								],
+								borderColor: [
+									'rgba(255, 206, 86, 1)'
+								],
+								borderWidth: 1.5,
+								borderRadius: 10
+							},
+
+							{
+								//"High Priority" category (color red)
+								label: 'High Priority',
+
+								//data under "High Priority" category
+								data: HighTrafficData,//getting the data from the array HighTrafficData
+
+								//other designing methods
+								backgroundColor: [
+									'rgba(255, 99, 132, 0.2)'
+								],
+								borderColor: [
+									'rgba(255, 99, 132, 1)'
+								],
+								borderWidth: 1.5,
+								borderRadius: 10
+							}]
+						},
+
+						//other chartJS options for drawing the chart
+						options: 
+						{
+							responsive: true,
+							maintainAspectRatio: false,
+							aspectRatio: 2,
+							scales: 
+							{
+								x: 
+								{
+									title:
+									{
+										display: true,
+										text: 'Time',
+									}
+								},
+
+								y: 
+								{
+									title:
+									{
+										display: true,
+										text: 'Amount of Traffic'
+									}
+								}
+							}
+						}
+					});
+				}
+			},
+			error: function (msg) {
+				//alert("access failed：" + msg);
+				$('.toast').toast('show');
+				document.getElementById("toast-body-error-message").innerHTML = "access failed：" + msg;
+				}
+			});
+
+			
+			$.ajax({
+				type: 'POST',
+				url: '../cgi-bin/ids-system.exe',
+				data: JSON.stringify({"request":"Live Traffic Countries Chart"}),
+				dataType: "text",
+				ContentType: "application/text; charset=utf-8",
+				success: function (returnedData, status) {
+					if (status == "success") {
+						document.getElementById("canvas2").innerHTML = '<canvas id="five-minutes-country-doughnut-chart" style="width:100%; height: 35vh;"></canvas>';
+						var obj = JSON.parse(returnedData);
+						
+						//traffic received last 5 minutes countries douhgnut chart variables and controls
+						var fmcdc = document.getElementById('five-minutes-country-doughnut-chart');
+
+						//array for the "Total Traffic Receive" for the doughnut chart
+						//1st element is for 'Country A', 2nd element is for 'Country B' and so on
+						var DoughnutTrafficData = obj.amount.splice(0,5);
+
+						//array for the latest five countries where traffic is received
+						var LatestFiveCountries = obj.country.splice(0,5);
+
+						//variable to make and configure the last 5 minutes doughnut chart
+						var Configfmcdc = new Chart(fmcdc, 
+						{
+							type: 'doughnut',
+							data: {
+
+								//X-axis labels (hardcoded to only show 5 countries depending on the late countries)
+								labels: LatestFiveCountries,//getting the data from the array LatestFiveCountries
+								datasets: [
+								{
+									label: 'Total Traffic Receive',
+
+									//data under "Total Traffic Receive" category
+									data: DoughnutTrafficData,//getting the data from the array DoughnutTrafficData
+
+									//other designing methods
+									backgroundColor: [
+										'rgba(255, 99, 132, 0.8)',
+										'rgba(255, 206, 86, 0.8)',
+										'rgba(54, 162, 235, 0.8)',
+										'rgba(77, 175, 124, 0.8)',
+										'rgba(142, 68, 173, 0.8)'
+									],
+									borderWidth: 1.5
+								}]
+							},
+
+							//other chartJS options for drawing the chart
+							options: 
+							{
+								responsive: true,
+								maintainAspectRatio: false,
+								aspectRatio: 2,
+								scales: {y: {beginAtZero: true}}
+							}
+						});
+					}
+				},
+				error: function (msg) {
+					//alert("access failed：" + msg);
+					$('.toast').toast('show');
+					document.getElementById("toast-body-error-message").innerHTML = "access failed：" + msg;
+					}
+				});
+		}
+	</script>
+	
+	<!--UI and Controller Interaction Script-->
+	<script type="text/javaScript">
+		
+		function live() {
+			var limit = 25;
+			var data = JSON.stringify({"request":"live_traffic","limit":limit});
+			
+			$.ajax({
+			type: 'POST',
+			url: '../cgi-bin/ids-system.exe',
+			data: data,
+			dataType: "text",
+			ContentType: "application/text; charset=utf-8",
+			success: function (returnedData, status) {
+				if (status == "success") {
+					document.getElementById("live-traffic").innerHTML = returnedData;
+				}
+			},
+			error: function (msg) {
+				//alert("access failed：" + msg);
+				$('.toast').toast('show');
+				document.getElementById("toast-body-error-message").innerHTML = "access failed：" + msg;
+				}
+			});
+		}
+	
+		//control what variables show in table
+		function show()
+		{				
+			if(document.getElementById('Date-timeCheckbox').checked == true)
+				document.getElementById("datetime").innerHTML = ".date-time{display:on;}";
+			else if(document.getElementById('Date-timeCheckbox').checked != true)
+				document.getElementById("datetime").innerHTML = ".date-time{display:none;}";
+			
+			if(document.getElementById('sidCheckBox').checked == true)
+				document.getElementById("sid").innerHTML = ".sid{display:on;}";
+			else if(document.getElementById('sidCheckBox').checked != true)
+				document.getElementById("sid").innerHTML = ".sid{display:none;}";
+				
+			if(document.getElementById('cidCheckBox').checked == true)
+				document.getElementById("cid").innerHTML = ".cid{display:on;}";
+			else if(document.getElementById('cidCheckBox').checked != true)
+				document.getElementById("cid").innerHTML = ".cid{display:none;}";
+				
+			if(document.getElementById('SignatureCheckBox').checked == true)
+				document.getElementById("sig").innerHTML = ".signature{display:on;}";
+			else if(document.getElementById('SignatureCheckBox').checked != true)
+				document.getElementById("sig").innerHTML = ".signature{display:none;}";
+				
+			if(document.getElementById('PriorityCheckBox').checked == true)
+				document.getElementById("pri").innerHTML = ".priority{display:on;}";
+			else if(document.getElementById('PriorityCheckBox').checked != true)
+				document.getElementById("pri").innerHTML = ".priority{display:none;}";
+				
+			if(document.getElementById('ProtocolCheckBox').checked == true)
+				document.getElementById("pro").innerHTML = ".protocol{display:on;}";
+			else if(document.getElementById('ProtocolCheckBox').checked != true)
+				document.getElementById("pro").innerHTML = ".protocol{display:none;}";
+				
+			if(document.getElementById('Source-IPCheckBox').checked == true)
+				document.getElementById("src_ip").innerHTML = ".src_ip{display:on;}";
+			else if(document.getElementById('Source-IPCheckBox').checked != true)
+				document.getElementById("src_ip").innerHTML = ".src_ip{display:none;}";
+				
+			if(document.getElementById('Source-PortCheckBox').checked == true)
+				document.getElementById("src_port").innerHTML = ".src_port{display:on;}";
+			else if(document.getElementById('Source-PortCheckBox').checked != true)
+				document.getElementById("src_port").innerHTML = ".src_port{display:none;}";
+				
+			if(document.getElementById('Destination-IPCheckBox').checked == true)
+				document.getElementById("dst_ip").innerHTML = ".dst_ip{display:on;}";
+			else if(document.getElementById('Destination-IPCheckBox').checked != true)
+				document.getElementById("dst_ip").innerHTML = ".dst_ip{display:none;}";
+				
+			if(document.getElementById('Destination-PortCheckBox').checked == true)
+				document.getElementById("dst_port").innerHTML = ".dst_port{display:on;}";
+			else if(document.getElementById('Destination-PortCheckBox').checked != true)
+				document.getElementById("dst_port").innerHTML = ".dst_port{display:none;}";
+		}
+		
+		$(document).ready(function()
+		{
+			chart()
+			function refresh()
+			{
+				show();
+				live();
+			}
+
+			setInterval(function()
+			{
+				refresh()
+			}, 500);
+			
+			setInterval(function()
+			{
+				chart()
+			}, 60000);
+		})
+	</script>
+	<style id="datetime">
+	</style>
+	<style id="sid">
+	</style>
+	<style id="cid">
+	</style>
+	<style id="sig">
+	</style>
+	<style id="pri">
+	</style>
+	<style id="pro">
+	</style>
+	<style id="src_ip">
+	</style>
+	<style id="dst_ip">
+	</style>
+	<style id="src_port">
+	</style>
+	<style id="dst_port">
+	</style>
+</body>
+</html>

@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<!-- Meta Tags -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+	<!-- Page Title -->
+	<title>Historical Network Data</title>
+
+	<!-- Bootstrap CSS CDN v5.0.1-->
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+
+	<!-- Animate on Scroll CSS -->
+	<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+	<!-- Our Project CSS -->
+	<link rel="stylesheet" href="project.css">
+
+	<!-- Sidebar Scrollbar CSS -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.min.css">
+
+	<!-- Font Awesome JS -->
+	<script src="https://use.fontawesome.com/releases/v5.15.3/js/all.js"></script>
+</head>
+<body>
+	<!--Main Layer -->
+	<div class="container">
+		<!-- Sidebar  navigation-->
+		<nav id="sidebar">
+			<div id="dismiss" onclick="CloseSidebar()">
+				<i class="fas fa-arrow-left"></i>
+			</div>
+			<!-- Sidebar header -->
+			<div class="sidebar-header">
+				<div class="d-flex justify-content-center">
+					<img src="HawkIDS_small.jpg" class="img-fluid" width="125" height="125">
+				</div>
+				<br>
+				<h3 class="d-flex justify-content-center">Hawk IDS</h3>
+			</div>
+			<hr class="solid m-0">
+
+			<!-- Sidebar options list -->
+			<ul class="list-unstyled components">
+				<li>
+					<a onclick='passSession("live-network-traffic.html")'><i class="far fa-clock"></i> Live Network Traffic</a>
+				</li>
+				<li class="active">
+					<a onclick='passSession("historical-network-data.html")'><i class="fas fa-history"></i> Historical Network Data</a>
+				</li>
+				<li>
+					<a onclick='passSession("quarantine-control.html")'><i class="fas fa-shield-alt"></i> Quarantine Control</a>
+				</li>
+				<li>
+					<a onclick='passSession("notification-settings.html")'><i class="fas fa-bell"></i> Notification Settings</a>
+				</li>
+				<!-- line on the side bar to seperate logout -->
+				<hr class="solid">
+				<li>
+					<a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+				</li>
+			</ul>
+		</nav>
+
+		<!-- Page Content (excluding sidebar, all other page content should be under here) -->
+		<div id="content" class="container-fluid">
+			<!-- Navigation Row -->
+			<div class="row sticky-top">
+				<!-- Header Navigation-->
+				<nav class="navbar navbar-expand-lg navbar-light bg-light">
+					<!-- Sidebar collapse button-->
+					<button type="button" id="sidebarCollapse" class="btn btn-primary" onclick="OpenSidebar()"><i class="fas fa-bars"></i></button>
+					<div class="col py-1">
+						<h5 align="center">Historical Network Data&emsp;&ensp;</h5>
+					</div>
+				</nav>
+			</div>
+			<br>
+
+			<!-- Page Information Row -->
+			<div class="alert alert-light alert-dismissible fade show rounded-3 shadow mx-1 mb-3" role="alert">
+				<strong><i class="far fa-question-circle"></i> Page Information</strong><hr>This page contains all the information about past network traffic that has entered the system. You can view, filter, specify a query, and examine traffics in detail to find possible intrusion that has slipped through the system.
+				<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+			</div>
+			
+			<!-- Database Overview Row -->
+			<div class="card rounded-3 border-3 shadow row mx-1 mb-3" data-aos="fade-right">
+				<h6 class="card-header">
+					<i class="fas fa-database"></i> Database Overview
+				</h6>
+				<div class="card-body" id="Database-Overview">
+					<p>you have used X MB</p><hr><span class="badge bg-primary fs-6 mb-2">Total Records: </span> #
+				</div>
+			</div>
+
+			<!-- Traffic Received last 3 Months Row -->
+			<div class="card shadow row rounded-3 mx-1 mb-3" data-aos="fade-right">
+				<h6 class="card-header">
+					<i class="fas fa-exchange-alt"></i> Traffic Received in 3 Months
+				</h6>
+				<div class="card-body">
+					<div class="row">
+						<div class="col-3">
+							<a tabindex="0" class="btn btn-primary btn-sm" role="button" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-placement="right" data-bs-content="The graph shows data about network traffic the system has received in a 3 month period. It shows the amount of traffic categorized by 'total', 'medium priority', and 'high priority' in each month. You can select and deselect traffic categories from the graph by clicking on their label. Use the options below to make a query and click apply."><i class="fas fa-question"></i></a>
+						</div>
+						<div class="collapse" id="TrafficReceivedInfo">
+							<p class="fst-italic"></p>
+						</div>
+					</div>
+					<div class="row" id="canvas1">
+						<canvas id="three-months-bar-chart" style="width:100%; height: 35vh;"></canvas>
+					</div>
+					<div class="row">
+						<hr>
+						<p align="middle">Choose a year and a 3 month period</p>
+						<div class="col">
+							<label for="asd">Year</label>
+							<select id="asd" class="form-select">
+								<option value="2021">2021</option>
+								<option value="2020">2020</option>
+								<option value="2019">2019</option>
+							</select>
+						</div>
+						<div class="col">
+							<label for="asd1">3 Month period</label>
+							<select id="asd1" class="form-select">
+								<option value="1">Jan - Mar</option>
+								<option value="2">Feb - Apr</option>
+								<option value="3">Mar - May</option>
+								<option value="4">Apr - Jun</option>
+								<option value="5">May - Jul</option>
+								<option value="6">Jun - Aug</option>
+								<option value="7">Jul - Sep</option>
+								<option value="8">Aug - Oct</option>
+								<option value="9">Sep - Nov</option>
+								<option value="10">Oct - Dec</option>
+							</select>
+						</div>
+					</div>
+					<div class="row mt-3 mx-0">
+						<!-- Apply Button for Traffic Received Last 3 Months Options-->
+						<button type="button" class="btn btn-info col-12" onclick="last3month()">Apply</button>
+					</div>
+				</div>
+			</div>
+
+			<!-- Traffic Received last 3 Months Countries Row -->
+			<div class="card shadow row rounded-3 mx-1 mb-3" data-aos="fade-right">
+				<h6 class="card-header">
+					<i class="fas fa-globe-africa"></i> Traffic Received in 3 Months by Countries
+				</h6>
+				<div class="card-body">
+					<div class="row">
+						<div class="col-3">
+							<a tabindex="0" class="btn btn-primary btn-sm" role="button" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-placement="right" data-bs-content="The graph shows 5 countries where traffic has been received in a 3 month period. It shows the total amount of traffic received in those countries respectively. You can select and deselect countries from the graph by clicking on their label. Use the options below to make a query and click apply"><i class="fas fa-question"></i></a>
+						</div>
+					</div>
+					<div class="row" id="canvas2">
+						<canvas id="three-months-country-doughnut-chart" style="width:100%; height: 35vh;"></canvas>
+					</div>
+					<div class="row">
+						<hr>
+						<p align="middle">Choose which countries to show</p>
+					</div>
+					<div class="row mb-2">
+						<div class="col-4 mt-2" style="color:red;">
+							Red
+						</div>
+						<div class="col-8">
+							<select id="red-color-country" class="form-select" onchange="changeColor()">
+								<option value="Country Name1">Country Name1</option>
+								<option value="Country Name2">Country Name2</option>
+								<option value="Country Name2">Country Name3</option>
+							</select>
+						</div>
+					</div>
+					<div class="row mb-2">
+						<div class="col-4 mt-2" style="color:orange;">
+							Yellow
+						</div>
+						<div class="col-8">
+							<select id="yellow-color-country" class="form-select" onchange="changeColor()">
+								<option value="Country Name1">Country Name1</option>
+								<option value="Country Name2">Country Name2</option>
+								<option value="Country Name2">Country Name3</option>
+							</select>
+						</div>
+					</div>
+					<div class="row mb-2">
+						<div class="col-4 mt-2" style="color:blue;">
+							Blue
+						</div>
+						<div class="col-8">
+							<select id="blue-color-country" class="form-select" onchange="changeColor()">
+								<option value="Country Name1">Country Name1</option>
+								<option value="Country Name2">Country Name2</option>
+								<option value="Country Name2">Country Name3</option>
+							</select>
+						</div>
+					</div>
+					<div class="row mb-2">
+						<div class="col-4 mt-2" style="color:green;">
+							Green
+						</div>
+						<div class="col-8">
+							<select id="green-color-country" class="form-select" onchange="changeColor()">
+								<option value="Country Name1">Country Name1</option>
+								<option value="Country Name2">Country Name2</option>
+								<option value="Country Name2">Country Name3</option>
+							</select>
+						</div>
+					</div>
+					<div class="row mb-2">
+						<div class="col-4 mt-2" style="color:purple;">
+							Purple
+						</div>
+						<div class="col-8">
+							<select id="purple-color-country" class="form-select" onchange="changeColor()">
+								<option value="Country Name1">Country Name1</option>
+								<option value="Country Name2">Country Name2</option>
+								<option value="Country Name2">Country Name3</option>
+							</select>
+						</div>
+					</div>
+					<div class="row">
+						<hr>
+						<p align="middle">Choose a year and a 3 month period</p>
+						<div class="col">
+							<label for="asd2">Year</label>
+							<select id="asd2" class="form-select">
+								<option value="2021">2021</option>
+								<option value="2020">2020</option>
+								<option value="2019">2019</option>
+							</select>
+						</div>
+						<div class="col">
+							<label for="asd3">3 Month period</label>
+							<select id="asd3" class="form-select">
+								<option value="1">Jan - Mar</option>
+								<option value="2">Feb - Apr</option>
+								<option value="3">Mar - May</option>
+								<option value="4">Apr - Jun</option>
+								<option value="5">May - Jul</option>
+								<option value="6">Jun - Aug</option>
+								<option value="7">Jul - Sep</option>
+								<option value="8">Aug - Oct</option>
+								<option value="9">Sep - Nov</option>
+								<option value="10">Oct - Dec</option>
+							</select>
+						</div>
+					</div>
+					<div class="row mt-3 mx-0">
+						<!-- Apply Button for Traffic Received last 3 Months by Countries Options-->
+						<button type="button" class="btn btn-info col-12" onclick="last3month_Country()">Apply</button>
+					</div>
+				</div>
+			</div>
+
+			<!-- Database Query Row -->
+			<div class="card rounded-3 border-3 shadow row mx-1 mb-3" data-aos="fade-right">
+				<h6 class="card-header">
+					<i class="fas fa-search"></i> Database Query
+				</h6>
+				<div class="card-body">
+					<a tabindex="0" class="btn btn-primary btn-sm mb-3" role="button" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-placement="right" data-bs-content="You can search through the network data records that has entered the system using the filtering options below. The search results will appear on the next panel below."><i class="fas fa-question"></i></a>
+					<!-- Accordion body content -->
+					<div class="accordion" id="accordionExample">
+						<!-- Date-time Filters content -->
+						<div class="accordion-item">
+							<h2 class="accordion-header" id="headingOne">
+								<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
+									<i class="fas fa-calendar-alt"></i>&nbsp;Date-time Filters
+								</button>
+							</h2>
+							<div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+								<div class="accordion-body">
+									<div class="row">
+										<div class="col">
+											<label for="start-date">Start Date:</label>
+											<input type="date" id="start-date">
+										</div>
+										<div class="col">
+											<label for="end-date">End Date:&nbsp;&nbsp;</label>
+											<input type="date" id="end-date">
+										</div>
+									</div>
+									<div class="row">
+										<div class="col">
+											<label for="start-time">Start Time:</label>
+											<input type="time" id="start-time">
+										</div>
+										<div class="col">
+											<label for="end-time">End Time:&nbsp;&nbsp;</label>
+											<input type="time" id="end-time">
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<!-- Data Type Filters content -->
+						<div class="accordion-item">
+							<h2 class="accordion-header" id="headingTwo">
+								<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+									<i class="fas fa-filter"></i>&nbsp;Data Type Filters
+								</button>
+							</h2>
+							<div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+								<div class="accordion-body">
+									<div class="row">
+										<div class="form-check form-switch">
+											<label class="form-check-label" for="Date-timeCheckbox">Date-time</label>
+											<input class="form-check-input" type="checkbox" id="Date-timeCheckbox" value="Date-time" onclick="show()" checked>
+										</div>
+										<div class="form-check form-switch">
+											<label class="form-check-label" for="sidCheckBox">sid</label>
+											<input class="form-check-input" type="checkbox" id="sidCheckBox" value="sid" onclick="show()" checked>
+										</div>
+										<div class="form-check form-switch">
+											<label class="form-check-label" for="cidCheckBox">cid</label>
+											<input class="form-check-input" type="checkbox" id="cidCheckBox" value="cid" onclick="show()" checked>
+										</div>
+										<div class="form-check form-switch">
+											<label class="form-check-label" for="SignatureCheckBox">Signature</label>
+											<input class="form-check-input" type="checkbox" id="SignatureCheckBox" value="Signature" onclick="show()" checked>
+										</div>
+										<div class="form-check form-switch">
+											<label class="form-check-label" for="PriorityCheckBox">Priority</label>
+											<input class="form-check-input" type="checkbox" id="PriorityCheckBox" value="Priority" onclick="show()" checked>
+										</div>
+										<div class="form-check form-switch">
+											<label class="form-check-label" for="ProtocolCheckBox">Protocol</label>
+											<input class="form-check-input" type="checkbox" id="ProtocolCheckBox" value="Protocol" onclick="show()" checked>
+										</div>
+										<div class="form-check form-switch">
+											<label class="form-check-label" for="Source-IPCheckBox">Source-IP</label>
+											<input class="form-check-input" type="checkbox" id="Source-IPCheckBox" value="Source-IP" onclick="show()" checked>
+										</div>
+										<div class="form-check form-switch">
+											<label class="form-check-label" for="Source-PortCheckBox">Source-Port</label>
+											<input class="form-check-input" type="checkbox" id="Source-PortCheckBox" value="Source-Port" onclick="show()" checked>
+										</div>
+										<div class="form-check form-switch">
+											<label class="form-check-label" for="Destination-IPCheckBox">Destination-IP</label>
+											<input class="form-check-input" type="checkbox" id="Destination-IPCheckBox" value="Destination-IP" onclick="show()" checked>
+										</div>
+										<div class="form-check form-switch">
+											<label class="form-check-label" for="Destination-Port">Destination-Port</label>
+											<input class="form-check-input" type="checkbox" id="Destination-PortCheckBox" value="Destination-Port" onclick="show()" checked>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<!-- Data Value Filters content -->
+						<div class="accordion-item">
+							<h2 class="accordion-header" id="headingThree">
+								<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+									<i class="fas fa-greater-than-equal"></i>&nbsp;Data Value Filters
+								</button>
+							</h2>
+							<div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
+								<div class="accordion-body">
+									<div class="row">
+										<div class="col">
+											<div class="form-floating">
+												<input type="text" class="form-control" id="sidValueFilter" placeholder="sid">
+												<label for="sidValueFilter"><i class="text-muted">sid</i></label>
+											</div>
+											<div class="form-floating">
+												<input type="text" class="form-control" id="cidValueFilter" placeholder="cid">
+												<label for="cidValueFilter"><i class="text-muted">cid</i></label>
+											</div>
+											<div class="form-floating">
+												<input type="text" class="form-control" id="SignatureValueFilter" placeholder="Signature">
+												<label for="SignatureValueFilter"><i class="text-muted">Signature</i></label>
+											</div>
+											<div class="form-floating">
+												<input type="text" class="form-control" id="PriorityValueFilter" placeholder="Priority">
+												<label for="PriorityValueFilter"><i class="text-muted">Priority</i></label>
+											</div>
+											<div class="form-floating">
+												<input type="text" class="form-control" id="ProtocolValueFilter" placeholder="Protocol">
+												<label for="ProtocolValueFilter"><i class="text-muted">Protocol</i></label>
+											</div>
+											<div class="form-floating">
+												<input type="text" class="form-control" id="Source-IPValueFilter" placeholder="Source-IP">
+												<label for="Source-IPValueFilter"><i class="text-muted">Source-IP</i></label>
+											</div>
+											<div class="form-floating">
+												<input type="text" class="form-control" id="Source-PortValueFilter" placeholder="Source-Port">
+												<label for="Source-PortValueFilter"><i class="text-muted">Source-Port</i></label>
+											</div>
+											<div class="form-floating">
+												<input type="text" class="form-control" id="Destination-IPValueFilter" placeholder="Destination-IP">
+												<label for="Destination-IPValueFilter"><i class="text-muted">Destination-IP</i></label>
+											</div>
+											<div class="form-floating">
+												<input type="text" class="form-control" id="Destination-PortValueFilter" placeholder="Destination-Port">
+												<label for="Destination-PortValueFilter"><i class="text-muted">Destination-Port</i></label>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<!-- Order By content -->
+						<div class="accordion-item">
+							<h2 class="accordion-header" id="headingFour">
+								<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+									<i class="fas fa-sort"></i>&nbsp;Order By
+								</button>
+							</h2>
+							<div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#accordionExample">
+								<div class="accordion-body">
+									<div class="row">
+										<div class="form-check">
+											<input class="form-check-input" type="radio" name="orderByOptions" id="order-by-datetime" value="timestamp" checked>
+											<label class="form-check-label" for="order-by-datetime">datetime</label>
+										</div>
+										<div class="form-check">
+											<input class="form-check-input" type="radio" name="orderByOptions" id="order-by-sid" value="sid">
+											<label class="form-check-label" for="order-by-sid">sid</label>
+										</div>
+										<div class="form-check">
+											<input class="form-check-input" type="radio" name="orderByOptions" id="order-by-cid" value="cid">
+											<label class="form-check-label" for="order-by-cid">cid</label>
+										</div>
+										<div class="form-check">
+											<input class="form-check-input" type="radio" name="orderByOptions" id="order-by-signature" value="sig_id">
+											<label class="form-check-label" for="order-by-signature">Signature</label>
+										</div>
+										<div class="form-check">
+											<input class="form-check-input" type="radio" name="orderByOptions" id="order-by-priority" value="sig_priority">
+											<label class="form-check-label" for="order-by-priority">Priority</label>
+										</div>
+										<div class="form-check">
+											<input class="form-check-input" type="radio" name="orderByOptions" id="order-by-protocol" value="ip_proto">
+											<label class="form-check-label" for="order-by-protocol">Protocol</label>
+										</div>
+										<div class="form-check">
+											<input class="form-check-input" type="radio" name="orderByOptions" id="order-by-source-IP" value="ip_src">
+											<label class="form-check-label" for="order-by-source-IP">Source-IP</label>
+										</div>
+										<div class="form-check">
+											<input class="form-check-input" type="radio" name="orderByOptions" id="order-by-source-port" value="sport">
+											<label class="form-check-label" for="order-by-source-port">Source-Port</label>
+										</div>
+										<div class="form-check">
+											<input class="form-check-input" type="radio" name="orderByOptions" id="order-by-destination-IP" value="ip_dst">
+											<label class="form-check-label" for="order-by-destination-IP">Destination-IP</label>
+										</div>
+										<div class="form-check">
+											<input class="form-check-input" type="radio" name="orderByOptions" id="order-by-destination-port" value="dport">
+											<label class="form-check-label" for="order-by-destination-port">Destination-Port</label>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<!-- Search button -->
+						<button class="btn btn-info col-12" onclick="pagination();history(1);">Search</button>
+					</div>
+				</div>
+			</div>
+
+			<!-- Search Result Row -->
+			<div class="card rounded-3 border-3 shadow row mx-1 mb-3" data-aos="fade-right">
+				<h6 class="card-header">
+					<i class="fas fa-list"></i> Search Result
+				</h6>
+				<div class="card-body">
+					<a tabindex="0" class="btn btn-primary btn-sm" role="button" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-placement="right" data-bs-content="Use the page numbers below or &lt;, &gt;, &laquo;, &raquo; buttons to navigate or the &Rsh; button to jump to a specific page."><i class="fas fa-question"></i></a>
+					<hr>
+					<span class="badge bg-info fs-6" id="search-records"># Records found</span>
+
+					<!-- Table to display historical network data -->
+					<div class="table-responsive" style="overflow-x:auto;" id="historical-traffic"></div>
+					<hr>
+
+					<!-- Pagination for historical network data table -->
+					<nav >
+						<ul class="pagination  justify-content-center" id="pagination">
+							<li class="page-item"><a class="page-link" onclick="firstPage()">&laquo;</a></li>
+							<li class="page-item"><a class="page-link" onclick="prev()">&lt;</a></li>
+							<li class="page-item"><a class="page-link" onclick="history(1)">1</a></li>
+							<li class="page-item"><a class="page-link" onclick="next()">&gt;</a></li>
+							<li class="page-item"><a class="page-link" onclick="lastPage()">&raquo;</a></li>
+							<li class="page-item disabled"><a class="page-link" >&nbsp;</a></li>
+							<li class="page-item"><button class="page-link" data-bs-toggle="modal" data-bs-target="#jumpToPageModal">&Rsh;</button></li>
+						</ul>
+					</nav>
+				</div>
+			</div>
+
+			<!-- Toast Error Message -->
+			<!-- z-index: 1100, so that it will appear on top of the modal -->
+			<div class=" toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100">
+				<div id="liveToast" class="toast hide" role="alert">
+					<div class="toast-header bg-warning">
+						<i class="fas fa-exclamation-triangle"></i>
+						<strong class="me-auto"> Warning!</strong>
+						<small class="text-muted">just now</small>
+						<button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+					</div>
+					<div class="toast-body" id="toast-body-error-message"></div>
+				</div>
+			</div>
+		</div><!-- End of #content <div> -->
+	</div><!-- End of .container <div> -->
+
+	<!-- Jump to page modal -->
+	<div class="modal fade" id="jumpToPageModal" tabindex="-1">
+		<!-- Vertically small centered modal -->
+		<div class="modal-dialog modal-dialog-centered modal-sm">
+			<div class="modal-content">
+				<!-- Modal header content -->
+				<div class="modal-header alert alert-secondary">
+					<h5 class="modal-title">&Rsh; Jump to page</h5>
+					<!-- (X) close button on the right side of header -->
+					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+				<!-- Modal body content -->
+				<div class="modal-body">
+					<input type="number" class="form-control col" id="jump">
+				</div>
+				<!-- Modal footer content -->
+				<div class="modal-footer">
+					<!-- Cancel button on modal footer's bottom left side -->
+					<button type="button" class="btn btn-secondary col" data-bs-dismiss="modal">Cancel</button>
+					<!-- Jump button on modal footer's bottom right side -->
+					<button type="button" class="btn btn-primary col" data-bs-dismiss="modal" onclick="jump()">Jump</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Overlay layer-->
+	<div class="overlay" onclick="CloseSidebar()"></div>
+
+	<!-- AJAX v3.5.1-->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+	<!-- Bootstrap JS including Popper JS -->
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
+
+	<!-- jQuery Custom Scroller CDN -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.concat.min.js"></script>
+
+	<!-- Script to control sidebar -->
+	<script type="text/javascript" src="Sidebar.js"></script>
+
+	<!-- Animate on Scroll JS -->
+	<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+	<!-- Initialize animte on scroll external JS -->
+	<script>AOS.init();</script>
+
+	<!-- Script for request functions -->
+	<script type="text/javascript" src="function.js"></script>
+
+	<!--Chart JS Script-->
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+	<!-- Bootstrap Popover Script -->
+	<script type="text/javascript" src="Popover.js"></script>
+
+	<!-- Script to create graph placeholder for graphs -->
+	<script type="text/javascript">
+		var tmbc = document.getElementById('three-months-bar-chart');
+
+		//variable to make and configure the last 3 months bar chart
+		var Configtmbc = new Chart(tmbc, 
+		{
+			type: 'bar',
+			data: 
+			{
+				//X-axis labels (hardcoded to only show the last 3 Months)
+				labels: ['Month 3', 'Month 2', 'Month 1'],
+				datasets: [
+				{
+					//"Total" category (color blue)
+					label: 'Total',
+
+					//data under "Total" category 
+					data: [0,0,0],//getting the data from the array TotalTrafficData
+
+					//other designing methods
+					backgroundColor: [
+						'rgba(54, 162, 235, 0.2)'
+					],
+					borderColor: [
+						'rgba(54, 162, 235, 1)'
+					],
+					borderWidth: 1,
+					borderRadius: 5
+				},
+
+				{
+					//"Medium Priority" category (color yellow)
+					label: 'Medium Priority',
+
+					//data under "Medium Priority" category
+					data: [0,0,0],//getting the data from the array MediumTrafficData
+
+					//other designing methods
+					backgroundColor: [
+						'rgba(255, 206, 86, 0.2)'
+					],
+					borderColor: [
+						'rgba(255, 206, 86, 1)'
+					],
+					borderWidth: 1,
+					borderRadius: 5
+				},
+
+				{
+					//"High Priority" category (color red)
+					label: 'High Priority',
+
+					//data under "High Priority" category
+					data: [0,0,0],//getting the data from the array HighTrafficData
+
+					//other designing methods
+					backgroundColor: [
+						'rgba(255, 99, 132, 0.2)'
+					],
+					borderColor: [
+						'rgba(255, 99, 132, 1)'
+					],
+					borderWidth: 1,
+					borderRadius: 5
+				}]
+			},
+
+			//other chartJS options for drawing the chart
+			options: 
+			{
+				responsive: true,
+				maintainAspectRatio: false,
+				aspectRatio: 2,
+				scales: 
+				{
+					x: 
+					{
+						title:
+						{
+							display: true,
+							text: 'Time',
+						}
+					},
+
+					y: 
+					{
+						title:
+						{
+							display: true,
+							text: 'Amount of Traffic'
+						}
+					}
+				}
+			}
+		});
+
+		//traffic received last 3 months countries douhgnut chart variables and controls
+		var tmcdc = document.getElementById('three-months-country-doughnut-chart');
+
+		//variable to make and configure the last 3 months doughnut chart
+		var Configtmcdc = new Chart(tmcdc, 
+		{
+			type: 'doughnut',
+			data: {
+
+				//X-axis labels (hardcoded to only show 5 countries depending on the chosen countries)
+				labels: ['Red', 'Yellow', 'Blue', 'Green', 'Purple'],
+				datasets: [
+				{	
+					label: 'Total Traffic Receive',
+
+					//data under "Total Traffic Receive" category
+					data: [0,0,0,0,0],//getting the data from the array DoughnutTrafficData
+
+					//other designing methods
+					backgroundColor: [
+						'rgba(255, 99, 132, 0.8)',
+						'rgba(255, 206, 86, 0.8)',
+						'rgba(54, 162, 235, 0.8)',
+						'rgba(77, 175, 124, 0.8)',
+						'rgba(142, 68, 173, 0.8)'
+					],
+					borderWidth: 1.5
+				}]
+			},
+
+			//other chartJS options for drawing the chart
+			options: 
+			{
+				responsive: true,
+				maintainAspectRatio: false,
+				aspectRatio: 2,
+				scales: {y: {beginAtZero: true}}
+			}
+		});
+	</script>
+
+	<!-- Script to create graph using Chart.JS -->
+	<script>
+	$.ajax({
+		type: 'POST',
+		url: '../cgi-bin/ids-system.exe',
+		data: JSON.stringify({"request":"database overview"}),
+		dataType: "text",
+		ContentType: "application/text; charset=utf-8",
+		success: function (returnedData, status) {
+			if (status == "success") {		
+				var obj = JSON.parse(returnedData);
+				document.getElementById("Database-Overview").innerHTML = '<p>you have used ' + obj.capacity + '</p><hr><span class="badge bg-primary fs-6 mb-2">Total Records: </span>' + obj.totalRecord;
+			}
+		},
+		error: function (msg) {
+			$('.toast').toast('show');
+			document.getElementById("toast-body-error-message").innerHTML = "access failed：" + msg;
+			}
+		});
+
+	function last3month()
+	{	
+		document.getElementById("canvas1").innerHTML = '<div class="loader" style="height: 20vh;"></div><div class="d-flex justify-content-center" style="height: 15vh;">Loading...</div>';
+
+		var year = document.getElementById("asd").value;
+		var months = document.getElementById("asd1").value;
+		var monthLabels = [];
+		var first = 0;
+		var second = 0;
+		var third = 0;
+
+		switch(months)
+		{
+			case "1":
+				first = 1;
+				second = 2;
+				third = 3;
+				monthLabels = ["Jan", "Feb", "Mar"];
+				break;
+			case "2":
+				first = 2;
+				second = 3;
+				third = 4;
+				monthLabels = ["Feb", "Mar", "Apr"];
+				break;
+			case "3":
+				first = 3;
+				second = 4;
+				third = 5;
+				monthLabels = ["Mar", "Apr", "May"];
+				break;
+			case "4":
+				first = 4;
+				second = 5;
+				third = 6;
+				monthLabels = ["Apr", "May", "Jun"];
+				break;
+			case "5":
+				first = 5;
+				second = 6;
+				third = 7;
+				monthLabels = ["May", "Jun", "Jul"];
+				break;
+			case "6":
+				first = 6;
+				second = 7;
+				third = 8;
+				monthLabels = ["Jun", "Jul", "Aug"];
+				break;
+			case "7":
+				first = 7;
+				second = 8;
+				third = 9;
+				monthLabels = ["Jul", "Aug", "Sep"];
+				break;
+			case "8":
+				first = 8;
+				second = 9;
+				third = 10;
+				monthLabels = ["Aug", "Sep", "Oct"];
+				break;
+			case "9":
+				first = 9;
+				second = 10;
+				third = 11;
+				monthLabels = ["Sep", "Oct", "Nov"];
+				break;
+			case "10":
+				first = 10;
+				second = 11;
+				third = 12;
+				monthLabels = ["Oct", "Nov", "Dec"];
+				break;
+			default:
+				break;
+		}
+
+		$.ajax({
+		type: 'POST',
+		url: '../cgi-bin/ids-system.exe',
+		data: JSON.stringify({"request":"last 3 month traffic", "year": year, "first": first, "second": second, "third": third}),
+		dataType: "text",
+		ContentType: "application/text; charset=utf-8",
+		success: function (returnedData, status) {
+			if (status == "success") {		
+				document.getElementById("canvas1").innerHTML = '<canvas id="three-months-bar-chart" style="width:100%; height: 35vh;"></canvas>';
+				var obj = JSON.parse(returnedData);
+				//traffic received last 3 months bar chart variables and controls
+				var tmbc = document.getElementById('three-months-bar-chart');
+
+				//array for the "Total Traffic" data (color blue)
+				//1st element is for '1 Month ago', 2nd element is for '2 Months ago' and so on
+				var TotalTrafficData = obj.total;
+
+				//array for the "Medium Priority" data (color yellow)
+				//1st element is for '1 Month ago', 2nd element is for '2 Months ago' and so on
+				var MediumTrafficData = obj.medium_priority;
+
+				//array for the "High Priority" data (color yellow)
+				//1st element is for '1 Month ago', 2nd element is for '2 Months ago' and so on
+				var HighTrafficData = obj.high_priority;
+
+				//variable to make and configure the last 3 months bar chart
+				var Configtmbc = new Chart(tmbc, 
+				{
+					type: 'bar',
+					data: 
+					{
+						//X-axis labels (hardcoded to only show the last 3 Months)
+						labels: [monthLabels[0], monthLabels[1], monthLabels[2]],
+						datasets: [
+						{
+							//"Total" category (color blue)
+							label: 'Total',
+
+							//data under "Total" category 
+							data: TotalTrafficData,//getting the data from the array TotalTrafficData
+
+							//other designing methods
+							backgroundColor: [
+								'rgba(54, 162, 235, 0.2)'
+							],
+							borderColor: [
+								'rgba(54, 162, 235, 1)'
+							],
+							borderWidth: 1,
+							borderRadius: 5
+						},
+
+						{
+							//"Medium Priority" category (color yellow)
+							label: 'Medium Priority',
+
+							//data under "Medium Priority" category
+							data: MediumTrafficData,//getting the data from the array MediumTrafficData
+
+							//other designing methods
+							backgroundColor: [
+								'rgba(255, 206, 86, 0.2)'
+							],
+							borderColor: [
+								'rgba(255, 206, 86, 1)'
+							],
+							borderWidth: 1,
+							borderRadius: 5
+						},
+
+						{
+							//"High Priority" category (color red)
+							label: 'High Priority',
+
+							//data under "High Priority" category
+							data: HighTrafficData,//getting the data from the array HighTrafficData
+
+							//other designing methods
+							backgroundColor: [
+								'rgba(255, 99, 132, 0.2)'
+							],
+							borderColor: [
+								'rgba(255, 99, 132, 1)'
+							],
+							borderWidth: 1,
+							borderRadius: 5
+						}]
+					},
+
+					//other chartJS options for drawing the chart
+					options: 
+					{
+						responsive: true,
+						maintainAspectRatio: false,
+						aspectRatio: 2,
+						scales: 
+						{
+							x: 
+							{
+								title:
+								{
+									display: true,
+									text: 'Time',
+								}
+							},
+
+							y: 
+							{
+								title:
+								{
+									display: true,
+									text: 'Amount of Traffic'
+								}
+							}
+						}
+					}
+				});
+			}
+		},
+		error: function (msg) {
+			//alert("access failed：" + msg);
+			$('.toast').toast('show');
+			document.getElementById("toast-body-error-message").innerHTML = "access failed：" + msg;
+			}
+		});
+	}
+	
+	var globalObj;
+	function last3month_Country()
+	{
+
+		document.getElementById("canvas2").innerHTML = '<div class="loader" style="height: 20vh;"></div><div class="d-flex justify-content-center" style="height: 15vh;">Loading...</div>';
+
+		var year = document.getElementById("asd2").value;
+		var months = document.getElementById("asd3").value;
+		var from, to;
+		switch(months)
+		{
+			case "1":
+				from = 1;
+				to = 3;
+				break;
+			case "2":
+				from = 2;
+				to = 4;
+				break;
+			case "3":
+				from = 3;
+				to = 5;
+				break;
+			case "4":
+				from = 4;
+				to = 6;
+				break;
+			case "5":
+				from = 5;
+				to = 7;
+				break;
+			case "6":
+				from = 6;
+				to = 8;
+				break;
+			case "7":
+				from = 7;
+				to = 9;
+				break;
+			case "8":
+				from = 8;
+				to = 10;
+				break;
+			case "9":
+				from = 9;
+				to = 11;
+				break;
+			case "10":
+				from = 10;
+				to = 12;
+				break;
+			default:
+				break;
+		}
+		$.ajax({
+				type: 'POST',
+				url: '../cgi-bin/ids-system.exe',
+				data: JSON.stringify({"request":"last 3 month traffic countries", "year": year, "from": from, "to": to}),
+				dataType: "text",
+				ContentType: "application/text; charset=utf-8",
+				success: function (returnedData, status) {
+					if (status == "success") {		
+						document.getElementById("canvas2").innerHTML = '<canvas id="three-months-country-doughnut-chart" style="width:100%; height: 35vh;"></canvas>';
+						var obj = JSON.parse(returnedData);
+						//traffic received last 3 months countries douhgnut chart variables and controls
+						var tmcdc = document.getElementById('three-months-country-doughnut-chart');
+
+						globalObj = obj;
+
+						var country_option;	
+						
+						for(var i = 0; i < obj.country.length; i++)
+						{
+							country_option  += "<option value='" + i + "'>" + obj.country[i] + "</option>";
+						}
+						document.getElementById("red-color-country").innerHTML = country_option;
+						document.getElementById("yellow-color-country").innerHTML = country_option;
+						document.getElementById("yellow-color-country").value = 1;
+						document.getElementById("blue-color-country").innerHTML = country_option;
+						document.getElementById("blue-color-country").value = 2;
+						document.getElementById("green-color-country").innerHTML = country_option;
+						document.getElementById("green-color-country").value = 3;
+						document.getElementById("purple-color-country").innerHTML = country_option;
+						document.getElementById("purple-color-country").value = 4;
+						
+						//variables to control the chosen 5 countries by the user
+						var RedCountry = document.getElementById("red-color-country").value;
+						var YellowCountry = document.getElementById("yellow-color-country").value;
+						var BlueCountry = document.getElementById("blue-color-country").value;
+						var GreenCountry = document.getElementById("green-color-country").value;
+						var PurpleCountry = document.getElementById("purple-color-country").value;
+						
+						//array for the "Total Traffic Receive" for the doughnut chart
+						//1st element is for 'RedCountry', 2nd element is for 'YellowCountry' and so on
+						var DoughnutTrafficData = [obj.amount[RedCountry], obj.amount[YellowCountry], obj.amount[BlueCountry], obj.amount[GreenCountry], obj.amount[PurpleCountry]];
+						
+						//variable to make and configure the last 3 months doughnut chart
+						var Configtmcdc = new Chart(tmcdc, 
+						{
+							type: 'doughnut',
+							data: {
+
+								//X-axis labels (hardcoded to only show 5 countries depending on the chosen countries)
+								labels: [obj.country[RedCountry], obj.country[YellowCountry], obj.country[BlueCountry], obj.country[GreenCountry], obj.country[PurpleCountry]],
+								datasets: [
+								{	
+									label: 'Total Traffic Receive',
+
+									//data under "Total Traffic Receive" category
+									data: DoughnutTrafficData,//getting the data from the array DoughnutTrafficData
+
+									//other designing methods
+									backgroundColor: [
+										'rgba(255, 99, 132, 0.8)',
+										'rgba(255, 206, 86, 0.8)',
+										'rgba(54, 162, 235, 0.8)',
+										'rgba(77, 175, 124, 0.8)',
+										'rgba(142, 68, 173, 0.8)'
+									],
+									borderWidth: 1.5
+								}]
+							},
+
+							//other chartJS options for drawing the chart
+							options: 
+							{
+								responsive: true,
+								maintainAspectRatio: false,
+								aspectRatio: 2,
+								scales: {y: {beginAtZero: true}}
+							}
+						});
+					}
+				},
+				error: function (msg) {
+					//alert("access failed：" + msg);
+					$('.toast').toast('show');
+					document.getElementById("toast-body-error-message").innerHTML = "access failed：" + msg;
+					}
+				});
+	}
+	
+	function changeColor()
+	{
+		document.getElementById("canvas2").innerHTML = '<canvas id="three-months-country-doughnut-chart" style="width:100%; height: 35vh;"></canvas>';
+		//traffic received last 3 months countries douhgnut chart variables and controls
+		var tmcdc = document.getElementById('three-months-country-doughnut-chart');
+						
+		//variables to control the chosen 5 countries by the user
+		var RedCountry = document.getElementById("red-color-country").value;
+		var YellowCountry = document.getElementById("yellow-color-country").value;
+		var BlueCountry = document.getElementById("blue-color-country").value;
+		var GreenCountry = document.getElementById("green-color-country").value;
+		var PurpleCountry = document.getElementById("purple-color-country").value;
+		
+		//array for the "Total Traffic Receive" for the doughnut chart
+		//1st element is for 'RedCountry', 2nd element is for 'YellowCountry' and so on
+		var DoughnutTrafficData = [globalObj.amount[RedCountry], globalObj.amount[YellowCountry], globalObj.amount[BlueCountry], globalObj.amount[GreenCountry], globalObj.amount[PurpleCountry]];
+		
+		//variable to make and configure the last 3 months doughnut chart
+		var Configtmcdc = new Chart(tmcdc, 
+		{
+			type: 'doughnut',
+			data: {
+
+				//X-axis labels (hardcoded to only show 5 countries depending on the chosen countries)
+				labels: [globalObj.country[RedCountry], globalObj.country[YellowCountry], globalObj.country[BlueCountry], globalObj.country[GreenCountry], globalObj.country[PurpleCountry]],
+				datasets: [
+				{	
+					label: 'Total Traffic Receive',
+
+					//data under "Total Traffic Receive" category
+					data: DoughnutTrafficData,//getting the data from the array DoughnutTrafficData
+
+					//other designing methods
+					backgroundColor: [
+						'rgba(255, 99, 132, 0.8)',
+						'rgba(255, 206, 86, 0.8)',
+						'rgba(54, 162, 235, 0.8)',
+						'rgba(77, 175, 124, 0.8)',
+						'rgba(142, 68, 173, 0.8)'
+					],
+					borderWidth: 1.5
+				}]
+			},
+
+			//other chartJS options for drawing the chart
+			options: 
+			{
+				responsive: true,
+				maintainAspectRatio: false,
+				aspectRatio: 2,
+				scales: {y: {beginAtZero: true}}
+			}
+		});
+	}
+	</script>
+	
+	<!--UI and Controller Interaction Script-->
+	<script type="text/javascript">
+		var max_page = 1;
+		var cur_page;
+		var orderby = "timestamp";
+		
+		function setCurrentPage(i){
+			cur_page = i;
+		}
+
+		function firstPage(){
+			history(1);
+		}
+		
+		function prev(){
+			if(cur_page != 1)
+				history(cur_page-1);
+		}
+		
+		function next(){
+			if(cur_page != max_page)
+				history(cur_page+1);
+		}
+
+		function lastPage(){
+			history(max_page);
+		}
+		
+		function jump(){
+			var to = document.getElementById("jump").value;
+			if(to > max_page || to < 1){
+				//alert("invalid page");
+				$('.toast').toast('show');
+				document.getElementById("toast-body-error-message").innerHTML = "invalid page";
+			}
+			else{
+				history(parseInt(to));
+			}
+		}
+	
+		function pagination(){
+			var st = document.getElementById("start-time").value;
+			var et = document.getElementById("end-time").value;
+			var sd = document.getElementById("start-date").value;
+			var ed = document.getElementById("end-date").value;
+			var json = {"request":"pagination", "where": {
+			"start": sd + " " + st,
+			"end": ed + " " + et,
+			"sid": document.getElementById("sidValueFilter").value,
+			"cid": document.getElementById("cidValueFilter").value,
+			"sig_name": document.getElementById("SignatureValueFilter").value,
+			"sig_priority": document.getElementById("PriorityValueFilter").value,
+			"ip_proto": document.getElementById("ProtocolValueFilter").value,
+			"ip_src": document.getElementById("Source-IPValueFilter").value,
+			"sport": document.getElementById("Source-PortValueFilter").value,
+			"ip_dst": document.getElementById("Destination-IPValueFilter").value,
+			"dport": document.getElementById("Destination-PortValueFilter").value,
+			}};
+			
+			$.ajax({
+				type: 'POST',
+				url: '../cgi-bin/ids-system.exe',
+				data: JSON.stringify(json),
+				dataType: "text",
+				ContentType: "application/text; charset=utf-8",
+				success: function (returnedData, status) {
+					if (status == "success") {		
+						max_page = Math.ceil(returnedData/25);
+						document.getElementById("search-records").innerHTML = returnedData + " Records found";
+					}
+				},
+				error: function (msg) {
+					//alert("access failed：" + msg);
+					$('.toast').toast('show');
+					document.getElementById("toast-body-error-message").innerHTML = "access failed：" + msg;
+					}
+				});
+		}
+		
+		function history(page) {
+			var st = document.getElementById("start-time").value;
+			var et = document.getElementById("end-time").value;
+			var sd = document.getElementById("start-date").value;
+			var ed = document.getElementById("end-date").value;
+			var json = {"request":"historical-traffic", "page": page, "orderby": orderby, "where": {
+			"start": sd + " " + st,
+			"end": ed + " " + et,
+			"sid": document.getElementById("sidValueFilter").value,
+			"cid": document.getElementById("cidValueFilter").value,
+			"sig_name": document.getElementById("SignatureValueFilter").value,
+			"sig_priority": document.getElementById("PriorityValueFilter").value,
+			"ip_proto": document.getElementById("ProtocolValueFilter").value,
+			"ip_src": document.getElementById("Source-IPValueFilter").value,
+			"sport": document.getElementById("Source-PortValueFilter").value,
+			"ip_dst": document.getElementById("Destination-IPValueFilter").value,
+			"dport": document.getElementById("Destination-PortValueFilter").value,
+			}};
+			
+			$.ajax({
+			type: 'POST',
+			url: '../cgi-bin/ids-system.exe',
+			data: JSON.stringify(json),
+			dataType: "text",
+			ContentType: "application/text; charset=utf-8",
+			success: function (returnedData, status) {
+				if (status == "success") 
+				{
+					if(returnedData != "No data retrieve")
+					{
+						var p = '\
+							<li class="page-item"><a class="page-link" onclick="firstPage()">&laquo;</a></li>\
+							<li class="page-item"><a class="page-link" onclick="prev()">&lt;</a></li>\
+							<li class="page-item"><a class="page-link" onclick="history(' + page + ')">' + page + '</a></li>\
+							<li class="page-item"><a class="page-link" onclick="next()">&gt;</a></li>\
+							<li class="page-item"><a class="page-link" onclick="lastPage()">&raquo;</a></li>\
+							<li class="page-item disabled"><a class="page-link" href="#" >&nbsp;</a></li>\
+							<li class="page-item"><button class="page-link" data-bs-toggle="modal" data-bs-target="#jumpToPageModal">&Rsh;</button></li>';
+						document.getElementById("pagination").innerHTML = p;
+					}
+					setCurrentPage(page);
+					document.getElementById("historical-traffic").innerHTML = returnedData;
+				}
+			},
+			error: function (msg) {
+				//alert("access failed：" + msg);
+				$('.toast').toast('show');
+				document.getElementById("toast-body-error-message").innerHTML = "access failed：" + msg;
+				}
+			});
+		}
+		
+		//control what variables show in table
+		function show()
+		{				
+			if(document.getElementById('Date-timeCheckbox').checked == true)
+				document.getElementById("datetime").innerHTML = ".date-time{display:on;}";
+			else if(document.getElementById('Date-timeCheckbox').checked != true)
+				document.getElementById("datetime").innerHTML = ".date-time{display:none;}";
+			
+			if(document.getElementById('sidCheckBox').checked == true)
+				document.getElementById("sid").innerHTML = ".sid{display:on;}";
+			else if(document.getElementById('sidCheckBox').checked != true)
+				document.getElementById("sid").innerHTML = ".sid{display:none;}";
+				
+			if(document.getElementById('cidCheckBox').checked == true)
+				document.getElementById("cid").innerHTML = ".cid{display:on;}";
+			else if(document.getElementById('cidCheckBox').checked != true)
+				document.getElementById("cid").innerHTML = ".cid{display:none;}";
+				
+			if(document.getElementById('SignatureCheckBox').checked == true)
+				document.getElementById("sig").innerHTML = ".signature{display:on;}";
+			else if(document.getElementById('SignatureCheckBox').checked != true)
+				document.getElementById("sig").innerHTML = ".signature{display:none;}";
+				
+			if(document.getElementById('PriorityCheckBox').checked == true)
+				document.getElementById("pri").innerHTML = ".priority{display:on;}";
+			else if(document.getElementById('PriorityCheckBox').checked != true)
+				document.getElementById("pri").innerHTML = ".priority{display:none;}";
+				
+			if(document.getElementById('ProtocolCheckBox').checked == true)
+				document.getElementById("pro").innerHTML = ".protocol{display:on;}";
+			else if(document.getElementById('ProtocolCheckBox').checked != true)
+				document.getElementById("pro").innerHTML = ".protocol{display:none;}";
+				
+			if(document.getElementById('Source-IPCheckBox').checked == true)
+				document.getElementById("src_ip").innerHTML = ".src_ip{display:on;}";
+			else if(document.getElementById('Source-IPCheckBox').checked != true)
+				document.getElementById("src_ip").innerHTML = ".src_ip{display:none;}";
+				
+			if(document.getElementById('Source-PortCheckBox').checked == true)
+				document.getElementById("src_port").innerHTML = ".src_port{display:on;}";
+			else if(document.getElementById('Source-PortCheckBox').checked != true)
+				document.getElementById("src_port").innerHTML = ".src_port{display:none;}";
+				
+			if(document.getElementById('Destination-IPCheckBox').checked == true)
+				document.getElementById("dst_ip").innerHTML = ".dst_ip{display:on;}";
+			else if(document.getElementById('Destination-IPCheckBox').checked != true)
+				document.getElementById("dst_ip").innerHTML = ".dst_ip{display:none;}";
+				
+			if(document.getElementById('Destination-PortCheckBox').checked == true)
+				document.getElementById("dst_port").innerHTML = ".dst_port{display:on;}";
+			else if(document.getElementById('Destination-PortCheckBox').checked != true)
+				document.getElementById("dst_port").innerHTML = ".dst_port{display:none;}";
+		}
+		
+		document.addEventListener('change', function(e) {
+		  if (e.target.nodeName == 'INPUT' && e.target.type == 'radio' && e.target.checked) {
+			orderby = e.target.value;
+		  }
+		});
+	</script>
+    </script>
+	<style id="datetime">
+	</style>
+	<style id="sid">
+	</style>
+	<style id="cid">
+	</style>
+	<style id="sig">
+	</style>
+	<style id="pri">
+	</style>
+	<style id="pro">
+	</style>
+	<style id="src_ip">
+	</style>
+	<style id="dst_ip">
+	</style>
+	<style id="src_port">
+	</style>
+	<style id="dst_port">
+	</style>
+</body>
+</html>
