@@ -45,21 +45,21 @@
 			<!-- Sidebar options list -->
 			<ul class="list-unstyled components">
 				<li class="active">
-					<a onclick='passSession("live-network-traffic.html")'><i class="far fa-clock"></i> Live Network Traffic</a>
+					<a href="live-network-traffic.html"><i class="far fa-clock"></i> Live Network Traffic</a>
 				</li>
 				<li>
-					<a onclick='passSession("historical-network-data.html")'><i class="fas fa-history"></i> Historical Network Data</a>
+					<a href="historical-network-data.html"><i class="fas fa-history"></i> Historical Network Data</a>
 				</li>
 				<li>
-					<a onclick='passSession("quarantine-control.html")'><i class="fas fa-shield-alt"></i> Quarantine Control</a>
+					<a href="quarantine-control.html"><i class="fas fa-shield-alt"></i> Quarantine Control</a>
 				</li>
 				<li>
-					<a onclick='passSession("notification-settings.html")'><i class="fas fa-bell"></i> Notification Settings</a>
+					<a href="notification-settings.html"><i class="fas fa-bell"></i> Notification Settings</a>
 				</li>
 				<!-- line on the side bar to seperate logout -->
 				<hr class="solid">
 				<li>
-					<a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+					<a href="#"><i class="fas fa-sign-out-alt"></i> Logout</a>
 				</li>
 			</ul>
 		</nav>
@@ -242,7 +242,118 @@
 					<hr>
 
 					<!-- Table to display live network traffic data -->
-					<div class="table-responsive" style="overflow-x:auto;" id="live-traffic"></div>
+					<div class="table-responsive" style="overflow-x:auto;" id="live-traffic">
+						<table class="table table-bordered table-hover">
+							<tr>
+								<th class="date-time">Date-time</th>
+								<th class="sid">sid</th>
+								<th class="cid">cid</th>
+								<th class="signature">Signature</th>
+								<th class="priority">Priority</th>
+								<th class="protocol">Protocol</th>
+								<th class="src_ip">Source IP</th>
+								<th class="src_port">Source Port</th>
+								<th class="dst_ip">Destination IP</th>
+								<th class="dst_port">Destination Port</th>
+							</tr>
+							<tr>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+							</tr>
+							<tr>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+							</tr>
+							<tr>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+							</tr>
+							<tr>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+							</tr>
+							<tr>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+							</tr>
+							<tr>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+							</tr>
+							<tr>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+							</tr>
+							<tr>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+								<td>value</td>
+							</tr>
+						</table>
+					</div>
 				</div>
 			</div>
 
@@ -284,283 +395,16 @@
 
 	<!-- Initialize animte on scroll external JS -->
 	<script>AOS.init();</script>
-		
-	<!-- Script for request functions -->
-	<script type="text/javascript" src="function.js"></script>
-
+	
 	<!--Chart JS Script-->
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 	<!-- Bootstrap Popover Script -->
 	<script type="text/javascript" src="Popover.js"></script>
-
-	<!-- Script to create graph using Chart.JS -->
-	<script>
-	function chart(){
-		$.ajax({
-				type: 'POST',
-				url: '../cgi-bin/ids-system.exe',
-				data: JSON.stringify({"request":"overall status live"}),
-				dataType: "text",
-				ContentType: "application/text; charset=utf-8",
-				success: function (returnedData, status) {
-					if (status == "success") {
-						if(returnedData < 3)
-						{
-							document.getElementById("Overall-Status").innerHTML = '\<span class="badge bg-success fs-6"><i class="fas fa-check"></i> Safe</span>\
-																					<br>\
-																					<p>you have not receive network traffic that requires attention in the last 5 minutes</p>\
-																					<hr>';
-						}
-						else if(returnedData >= 3 && returnedData < 5)
-						{
-							document.getElementById("Overall-Status").innerHTML = '<span class="badge bg-warning fs-6"><i class="fas fa-exclamation-triangle"></i> Warning!</span>\
-																					<br>\
-																					<p>you have received network traffic under medium priority in the last 5 minutes</p>\
-																					<hr>';
-						}
-						else if(returnedData = 5)
-						{
-							document.getElementById("Overall-Status").innerHTML = '<span class="badge bg-danger fs-6"><i class="fas fa-skull-crossbones"></i> Danger!</span>\
-																					<br>\
-																					<p>you have received network traffic under high priority in the last 5 minutes</p>';
-						}
-						
-					}
-				},
-				error: function (msg) {
-					$('.toast').toast('show');
-					document.getElementById("toast-body-error-message").innerHTML = "Didn't received any traffic in the past 5 minutes";
-					document.getElementById("Overall-Status").innerHTML = '\<span class="badge bg-success fs-6"><i class="fas fa-check"></i> Safe</span>\
-																		<br>\
-																		<p>you have not receive network traffic that requires attention in the last 5 minutes</p>\
-																		<hr>';
-					}
-				});
-		
-					
-		$.ajax({
-			type: 'POST',
-			url: '../cgi-bin/ids-system.exe',
-			data: JSON.stringify({"request":"Live Traffic Chart"}),
-			dataType: "text",
-			ContentType: "application/text; charset=utf-8",
-			success: function (returnedData, status) {
-				if (status == "success") {
-					document.getElementById("canvas1").innerHTML = '<canvas id="five-minutes-bar-chart" style="width:100%; height: 35vh;"></canvas>';
-					var obj = JSON.parse(returnedData);
-
-					//traffic received last 5 minutes bar chart variables and controls
-					var fmbc = document.getElementById('five-minutes-bar-chart');
-
-					//array for the "Total Traffic" data (color blue)
-					//1st element is for '1 Minute ago', 2nd element is for '2 Minutes ago' and so on
-					var TotalTrafficData = obj.total;
-
-					//array for the "Medium Priority" data (color yellow)
-					//1st element is for '1 Minute ago', 2nd element is for '2 Minutes ago' and so on
-					var MediumTrafficData = obj.medium_priority;
-
-					//array for the "High Priority" data (color red)
-					//1st element is for '1 Minute ago', 2nd element is for '2 Minutes ago' and so on
-					var HighTrafficData = obj.high_priority;
-
-					//variable to make and configure the last 5 minutes bar chart
-					var Configfmbc = new Chart(fmbc, 
-					{
-						type: 'bar',
-						data: 
-						{
-							//X-axis labels (hardcoded to only show the last 5 minutes)
-							labels: ['1 Min ago', '2 Mins ago', '3 Mins ago', '4 Mins ago', '5 Mins ago'],
-							datasets: [
-							{
-								//"Total" category (color blue)
-								label: 'Total',
-
-								//data under "Total" category 
-								data: TotalTrafficData,//getting the data from the array TotalTrafficData
-
-								//other designing methods
-								backgroundColor: [
-									'rgba(54, 162, 235, 0.2)'
-								],
-								borderColor: [
-									'rgba(54, 162, 235, 1)'
-								],
-								borderWidth: 1.5,
-								borderRadius: 10
-							},
-
-							{
-								//"Medium Priority" category (color yellow)
-								label: 'Medium Priority',
-
-								//data under "Medium Priority" category
-								data: MediumTrafficData,//getting the data from the array MediumTrafficData
-
-								//other designing methods
-								backgroundColor: [
-									'rgba(255, 206, 86, 0.2)'
-								],
-								borderColor: [
-									'rgba(255, 206, 86, 1)'
-								],
-								borderWidth: 1.5,
-								borderRadius: 10
-							},
-
-							{
-								//"High Priority" category (color red)
-								label: 'High Priority',
-
-								//data under "High Priority" category
-								data: HighTrafficData,//getting the data from the array HighTrafficData
-
-								//other designing methods
-								backgroundColor: [
-									'rgba(255, 99, 132, 0.2)'
-								],
-								borderColor: [
-									'rgba(255, 99, 132, 1)'
-								],
-								borderWidth: 1.5,
-								borderRadius: 10
-							}]
-						},
-
-						//other chartJS options for drawing the chart
-						options: 
-						{
-							responsive: true,
-							maintainAspectRatio: false,
-							aspectRatio: 2,
-							scales: 
-							{
-								x: 
-								{
-									title:
-									{
-										display: true,
-										text: 'Time',
-									}
-								},
-
-								y: 
-								{
-									title:
-									{
-										display: true,
-										text: 'Amount of Traffic'
-									}
-								}
-							}
-						}
-					});
-				}
-			},
-			error: function (msg) {
-				//alert("access failed：" + msg);
-				$('.toast').toast('show');
-				document.getElementById("toast-body-error-message").innerHTML = "access failed：" + msg;
-				}
-			});
-
-			
-			$.ajax({
-				type: 'POST',
-				url: '../cgi-bin/ids-system.exe',
-				data: JSON.stringify({"request":"Live Traffic Countries Chart"}),
-				dataType: "text",
-				ContentType: "application/text; charset=utf-8",
-				success: function (returnedData, status) {
-					if (status == "success") {
-						document.getElementById("canvas2").innerHTML = '<canvas id="five-minutes-country-doughnut-chart" style="width:100%; height: 35vh;"></canvas>';
-						var obj = JSON.parse(returnedData);
-						
-						//traffic received last 5 minutes countries douhgnut chart variables and controls
-						var fmcdc = document.getElementById('five-minutes-country-doughnut-chart');
-
-						//array for the "Total Traffic Receive" for the doughnut chart
-						//1st element is for 'Country A', 2nd element is for 'Country B' and so on
-						var DoughnutTrafficData = obj.amount.splice(0,5);
-
-						//array for the latest five countries where traffic is received
-						var LatestFiveCountries = obj.country.splice(0,5);
-
-						//variable to make and configure the last 5 minutes doughnut chart
-						var Configfmcdc = new Chart(fmcdc, 
-						{
-							type: 'doughnut',
-							data: {
-
-								//X-axis labels (hardcoded to only show 5 countries depending on the late countries)
-								labels: LatestFiveCountries,//getting the data from the array LatestFiveCountries
-								datasets: [
-								{
-									label: 'Total Traffic Receive',
-
-									//data under "Total Traffic Receive" category
-									data: DoughnutTrafficData,//getting the data from the array DoughnutTrafficData
-
-									//other designing methods
-									backgroundColor: [
-										'rgba(255, 99, 132, 0.8)',
-										'rgba(255, 206, 86, 0.8)',
-										'rgba(54, 162, 235, 0.8)',
-										'rgba(77, 175, 124, 0.8)',
-										'rgba(142, 68, 173, 0.8)'
-									],
-									borderWidth: 1.5
-								}]
-							},
-
-							//other chartJS options for drawing the chart
-							options: 
-							{
-								responsive: true,
-								maintainAspectRatio: false,
-								aspectRatio: 2,
-								scales: {y: {beginAtZero: true}}
-							}
-						});
-					}
-				},
-				error: function (msg) {
-					//alert("access failed：" + msg);
-					$('.toast').toast('show');
-					document.getElementById("toast-body-error-message").innerHTML = "access failed：" + msg;
-					}
-				});
-		}
-	</script>
 	
 	<!--UI and Controller Interaction Script-->
 	<script type="text/javaScript">
 		
-		function live() {
-			var limit = 25;
-			var data = JSON.stringify({"request":"live_traffic","limit":limit});
-			
-			$.ajax({
-			type: 'POST',
-			url: '../cgi-bin/ids-system.exe',
-			data: data,
-			dataType: "text",
-			ContentType: "application/text; charset=utf-8",
-			success: function (returnedData, status) {
-				if (status == "success") {
-					document.getElementById("live-traffic").innerHTML = returnedData;
-				}
-			},
-			error: function (msg) {
-				//alert("access failed：" + msg);
-				$('.toast').toast('show');
-				document.getElementById("toast-body-error-message").innerHTML = "access failed：" + msg;
-				}
-			});
-		}
-	
 		//control what variables show in table
 		function show()
 		{				
@@ -614,26 +458,6 @@
 			else if(document.getElementById('Destination-PortCheckBox').checked != true)
 				document.getElementById("dst_port").innerHTML = ".dst_port{display:none;}";
 		}
-		
-		$(document).ready(function()
-		{
-			chart()
-			function refresh()
-			{
-				show();
-				live();
-			}
-
-			setInterval(function()
-			{
-				refresh()
-			}, 500);
-			
-			setInterval(function()
-			{
-				chart()
-			}, 60000);
-		})
 	</script>
 	<style id="datetime">
 	</style>

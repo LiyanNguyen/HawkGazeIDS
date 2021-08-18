@@ -45,21 +45,21 @@
 			<!-- Sidebar options list -->
 			<ul class="list-unstyled components">
 				<li>
-					<a onclick='passSession("live-network-traffic.html")'><i class="far fa-clock"></i> Live Network Traffic</a>
+					<a href="live-network-traffic.html"><i class="far fa-clock"></i> Live Network Traffic</a>
 				</li>
 				<li>
-					<a onclick='passSession("historical-network-data.html")'><i class="fas fa-history"></i> Historical Network Data</a>
+					<a href="historical-network-data.html"><i class="fas fa-history"></i> Historical Network Data</a>
 				</li>
 				<li>
-					<a onclick='passSession("quarantine-control.html")'><i class="fas fa-shield-alt"></i> Quarantine Control</a>
+					<a href="quarantine-control.html"><i class="fas fa-shield-alt"></i> Quarantine Control</a>
 				</li>
 				<li class="active">
-					<a onclick='passSession("notification-settings.html")'><i class="fas fa-bell"></i> Notification Settings</a>
+					<a href="notification-settings.html"><i class="fas fa-bell"></i> Notification Settings</a>
 				</li>
 				<!-- line on the side bar to seperate seperate logout -->
 				<hr class="solid">
 				<li>
-					<a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+					<a href="#"><i class="fas fa-sign-out-alt"></i> Logout</a>
 				</li>
 			</ul>
 		</nav>
@@ -199,84 +199,8 @@
 	<!-- Initialize animte on scroll external JS -->
 	<script>AOS.init();</script>
 
-	<!-- Script for request functions -->
-	<script type="text/javascript" src="function.js"></script>
-
 	<!-- Bootstrap Popover Script -->
 	<script type="text/javascript" src="Popover.js"></script>
-	
-	<script>
-	function retrieveSetting()
-	{
-		$.ajax({
-				type:'POST',
-				url:'../cgi-bin/ids-system.exe',
-				data:JSON.stringify({"request":"retrieveNotificationSetting"}),
-				dataType:'text',
-				ContentType:"application/text; charset=utf-8",
-				success: function(returnData, status){
-					const obj = JSON.parse(returnData);
-					if(obj.status == "success")
-					{
-						document.getElementById("priority").value =  obj.priority;
-						document.getElementById("flexSwitchCheckChecked").checked =  obj.sendToApp;
 
-						var d1 = '<div class="alert alert-secondary alert-dismissible fade show" role="alert">The last notification for traffic under priority 1 or 2.<button type="button" class="btn-close" data-bs-dismiss="alert"></button><hr><i class="text-muted" id="low">01-01-2020 22:45</i></div>';
-						var d2 = '<div class="alert alert-warning alert-dismissible fade show" role="alert">The last notification for traffic under priority 3 or 4.<button type="button" class="btn-close" data-bs-dismiss="alert"></button><hr><i class="text-muted" id="medium">01-01-2020 22:45</i></div>';
-						var d3 = '<div class="alert alert-danger alert-dismissible fade show" role="alert">The last notification for traffic under priority >= 5.<button type="button" class="btn-close" data-bs-dismiss="alert"></button><hr><i class="text-muted" id="high">02-02-2021 13:30</i></div>';
-						if (document.getElementById("priority").value < 3)
-						{
-							document.getElementById("alert-notifs").innerHTML = d1 + d2 + d3;
-							document.getElementById("low").innerHTML =  obj.low;
-							document.getElementById("medium").innerHTML =  obj.medium;
-							document.getElementById("high").innerHTML =  obj.high;
-						}
-
-
-						else if (document.getElementById("priority").value >= 3 && document.getElementById("priority").value < 5)
-						{
-							document.getElementById("alert-notifs").innerHTML = d2 + d3;
-							document.getElementById("medium").innerHTML =  obj.medium;
-							document.getElementById("high").innerHTML =  obj.high;
-						}
-
-						else if (document.getElementById("priority").value == 5)
-						{
-							document.getElementById("alert-notifs").innerHTML = d3;
-							document.getElementById("high").innerHTML =  obj.high;
-						}
-					}
-				},
-				error: function (msg){
-					//alert(msg);
-				}
-			});
-	}
-	
-	function editSetting()
-	{
-		var json = {"request":"setNotificationSetting", 
-		"priority":parseInt(document.getElementById("priority").value),
-		"sendToApp":document.getElementById("flexSwitchCheckChecked").checked}
-
-		$.ajax({
-				type:'POST',
-				url:'../cgi-bin/ids-system.exe',
-				data: JSON.stringify(json),
-				dataType:'text',
-				ContentType:"application/text; charset=utf-8",
-				success: function(returnData, status){
-					alert(returnData);
-				},
-				error: function (msg){
-					//alert(msg);
-				}
-			});
-	}
-	
-	$(document).ready(function(){
-		retrieveSetting();
-	});
-	</script>
 </body>
 </html>

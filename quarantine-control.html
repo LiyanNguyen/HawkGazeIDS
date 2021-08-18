@@ -45,21 +45,21 @@
 			<!-- Sidebar options list -->
 			<ul class="list-unstyled components">
 				<li>
-					<a onclick='passSession("live-network-traffic.html")'><i class="far fa-clock"></i> Live Network Traffic</a>
+					<a href="live-network-traffic.html"><i class="far fa-clock"></i> Live Network Traffic</a>
 				</li>
 				<li>
-					<a onclick='passSession("historical-network-data.html")'><i class="fas fa-history"></i> Historical Network Data</a>
+					<a href="historical-network-data.html"><i class="fas fa-history"></i> Historical Network Data</a>
 				</li>
 				<li class="active">
-					<a onclick='passSession("quarantine-control.html")'><i class="fas fa-shield-alt"></i> Quarantine Control</a>
+					<a href="quarantine-control.html"><i class="fas fa-shield-alt"></i> Quarantine Control</a>
 				</li>
 				<li>
-					<a onclick='passSession("notification-settings.html")'><i class="fas fa-bell"></i> Notification Settings</a>
+					<a href="notification-settings.html"><i class="fas fa-bell"></i> Notification Settings</a>
 				</li>
 				<!-- line on the side bar to seperate logout -->
 				<hr class="solid">
 				<li>
-					<a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+					<a href="#"><i class="fas fa-sign-out-alt"></i> Logout</a>
 				</li>
 			</ul>
 		</nav>
@@ -321,199 +321,9 @@
 
 	<!-- Initialize animte on scroll external JS -->
 	<script>AOS.init();</script>
-	
-	<!-- Script for request functions -->
-	<script type="text/javascript" src="function.js"></script>
 
 	<!-- Bootstrap Popover Script -->
 	<script type="text/javascript" src="Popover.js"></script>
-	
-	<!--UI and Controller Interaction Script-->
-	<script>
-	var num;
-	
-	function setNum(i)
-	{
-		num = i;
-		document.getElementById("q_name").innerHTML = $("#quarantine-name-on-header" + num).text();
-	}
-	
-	function create()
-	{
-		var data = JSON.stringify({"request":"createQuarantine","rule":document.getElementById("create-rule").value,"name":document.getElementById("QuarantineName").value});
-		
-		$.ajax({
-			type: 'POST',
-			url: '../cgi-bin/ids-system.exe',
-			data: data,
-			dataType: 'text',
-			ContentType: 'application/text; charset=utf-8',
-			success: function (returnedData, status) {
-				if (status == "success") {
-					alert(returnedData);
-					display();
-				}
-			},
-			error: function (msg) {
-				$('.toast').toast('show');
-				document.getElementById("toast-body-error-message").innerHTML = "access failed：" + msg;
-			}
-		});
-		
-		$.ajax({
-			type: 'POST',
-			url: '../cgi-bin/restart.exe',
-			data: "restart",
-			dataType: 'text',
-			ContentType: 'application/text; charset=utf-8',
-			success: function (returnedData, status) {
-				if (status == "success") {
 
-				}
-			},
-			error: function (msg) {
-				
-			}
-		});
-	}
-	
-	function display()
-	{
-		$.ajax({
-			type: 'POST',
-			url: '../cgi-bin/ids-system.exe',
-			data: JSON.stringify({"request":"getQuarantine"}),
-			dataType: 'text',
-			ContentType: 'application/text; charset=utf-8',
-			success: function (returnedData, status) {
-				if (status == "success") {
-					if(returnedData == "quarantine parameters currently cannot be shown")
-					{
-						alert(returnedData);
-					}
-					else
-						document.getElementById("quarantineAccordion").innerHTML = returnedData;
-				}
-			},
-			error: function (msg) {
-				//alert("access failed：" + msg);
-				$('.toast').toast('show');
-				document.getElementById("toast-body-error-message").innerHTML = "access failed：" + msg;
-			}
-		});
-		
-		$.ajax({
-			type: 'POST',
-			url: '../cgi-bin/ids-system.exe',
-			data: '{"request":"quarantine overview"}',
-			dataType: 'text',
-			ContentType: 'application/text; charset=utf-8',
-			success: function (returnedData, status) {
-				if (status == "success") {
-					var obj = JSON.parse(returnedData);
-					document.getElementById("amount-of-rules").innerHTML = obj.amountOfRules;
-					document.getElementById("amount-of-quarantine").innerHTML = obj.amountOfQuarantined;
-					if(obj.quarantineStatus >= 5)
-						document.getElementById("Danger").style.display = "block";
-					else if(obj.quarantineStatus >= 1 && obj.quarantineStatus < 5)
-						document.getElementById("Warning").style.display = "block";
-					else
-						document.getElementById("Good").style.display = "block";
-				}
-			},
-			error: function (msg) {
-				//alert("access failed：" + msg);
-				$('.toast').toast('show');
-				document.getElementById("toast-body-error-message").innerHTML = "access failed：" + msg;
-			}
-		});
-	}
-	
-	function edit()
-	{
-		var old_rule = $("#rule" + num).text();
-		var new_rule = document.getElementById("edit-rule").value;
-		var new_name = document.getElementById("edit-quarantine-name").value;
-		var data = JSON.stringify({"request":"editQuarantine","old":old_rule,"new":new_rule,"name":new_name});
-		
-		$.ajax({
-			type: 'POST',
-			url: '../cgi-bin/ids-system.exe',
-			data: data,
-			dataType: 'text',
-			ContentType: 'application/text; charset=utf-8',
-			success: function (returnedData, status) {
-				if (status == "success") {
-					alert(returnedData);
-					display();
-				}
-			},
-			error: function (msg) {
-				//alert("access failed：" + msg);
-				$('.toast').toast('show');
-				document.getElementById("toast-body-error-message").innerHTML = "access failed：" + msg;
-			}
-		});
-		
-		$.ajax({
-			type: 'POST',
-			url: '../cgi-bin/restart.exe',
-			data: "restart",
-			dataType: 'text',
-			ContentType: 'application/text; charset=utf-8',
-			success: function (returnedData, status) {
-				if (status == "success") {
-
-				}
-			},
-			error: function (msg) {
-
-			}
-		});
-	}
-	
-	function remove()
-	{
-		var data = JSON.stringify({"request":"deleteQuarantine","rule":$("#rule" + num).text()});
-		
-		$.ajax({
-			type: 'POST',
-			url: '../cgi-bin/ids-system.exe',
-			data: data,
-			dataType: 'text',
-			ContentType: 'application/text; charset=utf-8',
-			success: function (returnedData, status) {
-				if (status == "success") {
-					alert(returnedData);
-					display();
-				}
-			},
-			error: function (msg) {
-				$('.toast').toast('show');
-				document.getElementById("toast-body-error-message").innerHTML = "access failed：" + msg;
-			}
-		});
-		
-		$.ajax({
-			type: 'POST',
-			url: '../cgi-bin/restart.exe',
-			data: "restart",
-			dataType: 'text',
-			ContentType: 'application/text; charset=utf-8',
-			success: function (returnedData, status) {
-				if (status == "success") {
-
-				}
-			},
-			error: function (msg) {
-			
-			}
-		});
-	}
-	
-	$(document).ready(function(){
-		display();
-	})
-	</script>
 </body>
 </html>
